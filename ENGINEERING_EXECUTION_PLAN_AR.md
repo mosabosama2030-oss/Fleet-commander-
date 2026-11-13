@@ -217,6 +217,13 @@
 - `gradle/wrapper/gradle-wrapper.properties` موجود؛ لكن لم يظهر `gradlew` أو `gradlew.bat` أو `gradle-wrapper.jar` في قائمة الأرشيف.
 - لم يظهر ملف APK داخل الأرشيف؛ الملف مشروع مصدر Android وليس حزمة APK جاهزة.
 
+### فصل الأرشيف عن Workflow المستودع الحاوي
+- **VERIFIED:** شجرة `Commander-os.1/main` تحتوي الأرشيف وملف `.github/workflows/build-apk.yml` الخارجي فقط تقريبًا.
+- **VERIFIED:** Workflow الخارجي الحالي يشغّل `echo Hello, world!` ورسالة إرشادية؛ لا يحتوي Gradle أو Android build أو tests.
+- **VERIFIED:** يوجد Workflow بناء فعلي داخل الأرشيف تحت `FleetCommanderAndroid/.github/workflows/build-apk.yml`، لكنه ملف مضغوط متداخل داخل مستودع المصدر وليس Workflow نشطًا في المستودع الحاوي.
+- **UNKNOWN:** لا توجد نتيجة تشغيل موثقة تثبت أن Workflow الداخلي نجح أو أن APK تم إنتاجه.
+- **النتيجة:** وجود Workflow باسم build-apk لا يساوي بناءً ناجحًا؛ يجب وضع مشروع Android في مسار تشغيل صحيح ثم تنفيذ build حقيقي وتوثيق مخرجاته.
+
 ### بنية Android كما يصرح بها المصدر
 - **VERIFIED:** Kotlin + Android WebView + AndroidX WebKit `WebViewAssetLoader` لخدمة أصول التطبيق من نطاق افتراضي HTTPS.
 - **VERIFIED:** إعدادات Gradle: Android Gradle Plugin `8.6.0`، Kotlin `1.9.24`، Gradle `8.9`، `compileSdk=35`، `targetSdk=35`، `minSdk=24`، وJava/Kotlin target 17.
