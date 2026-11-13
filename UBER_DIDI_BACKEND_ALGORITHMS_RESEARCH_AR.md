@@ -261,7 +261,32 @@
 
 **المغزى الهندسي:** التعلم الآلي يقدر قيمة البدائل؛ والمحسن يضمن أن القرار النهائي يستوفي القيود. وهذا فصل مهم بين «التنبؤ» و«اختيار قرار صالح».
 
-### 4.6 D2SN — Dispatch Reinforcement Learning (2024)
+### 4.6 RLW — Reinforcement Learning in the Wild (DiDi, KDD 2022)
+
+**VERIFIED — ورقة KDD 2022 من باحثين في DiDi Labs وDiDi Chuxing:** بحث عن Dispatch مركزي لسوق متعدد السائقين، وتقول الورقة إن الخوارزمية نُشرت Online في عدة مدن ثم أصبحت نمط الإسناد الأساسي في سوق دولي رئيسي وقت النشر. لا ينبغي الخلط بينها وبين مساعد إعادة التموضع الفردي في القسم 4.9.
+
+#### مكونات الخوارزمية المنشورة
+1. **تحديث قيمة متوقع (Expected TD Update):** لا يفترض النظام أن كل إسناد سيتحول إلى رحلة مكتملة. يستخدم احتمال اكتمال الرحلة (p_c) لمزج عائد/قيمة حالة الرحلة المكتملة مع سيناريو الإلغاء أو عدم الانتقال. لذلك يتعلم من عدم اليقين بدل معاملة كل عرض كرحلة ناجحة.
+2. **Utility مخصص لكل زوج Driver–Order:** يدمج احتمال الإكمال، والمكافأة الفورية، والتغير في القيمة المستقبلية بين موقع السائق الحالي والوجهة، وعقوبات تشغيلية مثل مسافة/زمن الالتقاط. لا يكتفي بترتيب الأجرة الخام.
+3. **Normalization وReward Smoothing:** يوحد مقاييس عناصر المنفعة باستخدام إحصاءات متحركة، وينعم المكافآت لتقليل أثر قفزات الأسعار والحوافز المؤقتة، وبذلك يمكن ضبط النموذج على أسواق تختلف في العملات ومستويات الأسعار.
+4. **نموذج مخاطر الإلغاء:** يصنف احتمال إكمال الرحلة لكل زوج طلب/سائق.
+5. **Adaptive Graph Pruning / LM-UCB:** يستخدم Multi-Armed Bandit محدود الذاكرة لاختيار حد قطع تكيفي للحواف منخفضة الاحتمال وفق مؤشرات تشغيلية مثل Completion Rate وAnswer Rate.
+6. **Matching optimizer:** بعد بناء الرسم الثنائي وتنقية الحواف، يحل مطابقة مرجحة واحد-لواحد باستخدام Hungarian/Kuhn–Munkres.
+7. **فصل مسار الاستجابة عن التحديث:** تصف الورقة مسار إسناد منخفض الكمون يتكرر على فواصل قصيرة، ومسارًا أبطأ لتحديث القيم/التنعيم. يذكر تصميم الورقة فاصلًا يقارب ثانيتين للإسناد ونحو 10 ثوانٍ للتحديثات المجمعة.
+
+#### نتائج ذكرتها الورقة
+- **A/B:** اختبرت DiDi النظام في خمس مدن على فترة أسبوعين، وأبلغت عن زيادة موزونة في إجمالي دخل السائقين قدرها 1.342%، وتحسن 0.422 نقطة مئوية في Completion Rate و0.296 نقطة مئوية في Answer Rate.
+- **تحليل سببي بعد التوسع:** أبلغت الورقة عن تحسن يصل إلى 5.3% في مؤشرات أداء رئيسية بعد النشر الكامل باستخدام Synthetic Difference-in-Differences. هذا رقم الدراسة كما نشره المؤلفون، وليس ضمانًا عامًا ولا يعني زيادة دخل 5.3% لكل سائق.
+
+#### ماذا نأخذ إلى Fleet Commander؟
+- **INFERRED:** تقييم الفرصة يجب أن يأخذ احتمال الإكمال وعدم اليقين في الحسبان، لا الإيراد المعروض وحده، إذا توافرت بيانات موثوقة تسمح بتقدير ذلك.
+- **PROPOSED:** يمكن لاحقًا تقدير احتمال صلاحية/إكمال فرصة يدوّنها الكابتن أو يستوردها من مصدر مصرح به، ثم استخدامه كعامل ثقة في ترتيب الفرص.
+- **لا ننقل كما هي:** LM-UCB وHungarian/graph matching أدوات لسوق فيه طلبات وسائقون كثيرون؛ الكابتن الفردي لا يملك مجموعة السائقين والطلبات المفتوحة التي تحتاج هذا الإسناد الجماعي.
+- **NOT RUN:** لم ننفذ RLW أو Expected TD أو LM-UCB أو Hungarian في Fleet Commander.
+
+المصدر: Sadeghi Eshkevari et al. (2022), [Reinforcement Learning in the Wild: Scalable RL Dispatching Algorithm Deployed in Ridehailing Marketplace](https://doi.org/10.1145/3534678.3539095)، KDD '22.
+
+### 4.7 D2SN — Dispatch Reinforcement Learning (2024)
 
 **VERIFIED — ورقة بحثية من مؤلفين تابعين لـDiDi منشورة على arXiv عام 2024:** تقترح نظام D2SN لقرار الإسناد من منظور أدق داخل دفعة الإسناد.
 
@@ -277,7 +302,7 @@
 
 المصدر: [D2SN — An End-to-End Reinforcement Learning Based Approach for Micro-View Order-Dispatching](https://arxiv.org/abs/2408.10479).
 
-### 4.7 ETA في DiDi: WDR وHetETA وCompactETA
+### 4.8 ETA في DiDi: WDR وHetETA وCompactETA
 
 **WDR — 2018:**
 - يجمع Wide Linear Model وDeep Neural Network وRecurrent Neural Network.
@@ -297,7 +322,7 @@
 
 المصادر: [WDR paper](https://doi.org/10.1145/3219819.3219900)، [HetETA](https://www.kdd.org/kdd2020/accepted-papers/view/heteta-heterogeneous-information-network-embedding-for-estimating-time-of-a.html)، [CompactETA](https://www.kdd.org/kdd2020/accepted-papers/view/compacteta-a-fast-inference-system-for-travel-time-prediction.html).
 
-### 4.8 AI Driver Assistant — إعادة تموضع السائق الفردي (DiDi Labs, 2021)
+### 4.9 AI Driver Assistant — إعادة تموضع السائق الفردي (DiDi Labs, 2021)
 
 **هذه أقرب دراسة منشورة إلى فكرة Fleet Commander للكابتن الفردي؛ وهي مختلفة عن نظام Dispatch المركزي.**
 
@@ -346,7 +371,7 @@
 
 المصدر الأساسي: [arXiv:2103.04555 — Real-world Ride-hailing Vehicle Repositioning using Deep Reinforcement Learning](https://arxiv.org/abs/2103.04555)، نسخة الورقة المنشورة في Transportation Research Part C (2021).
 
-### 4.9 ما تؤكده DiDi في إفصاحها العام الأحدث المتاح
+### 4.10 ما تؤكده DiDi في إفصاحها العام الأحدث المتاح
 
 **VERIFIED — إفصاح DiDi السنوي لعام 2025 المنشور لدى SEC في 2026:** تصف الشركة على مستوى عام استخدام AI والتعلم العميق لتوقع تقلبات العرض والطلب، وتعديل الحوافز، وتقديم توصيات للسائقين للانتقال من مناطق الطلب المنخفض إلى الأعلى، مع مراعاة عوامل مثل المسافة ووقت الانتظار وتفضيلات السائق والراكب عند المطابقة، وتحسين المسارات.
 
@@ -588,15 +613,16 @@
 
 ### DiDi — أبحاث ومستودعات
 11. Qin et al. (2020), [Ride-Hailing Order Dispatching at DiDi via Reinforcement Learning](https://doi.org/10.1287/inte.2020.1047) — batch matching وHungarian وSemi-MDP وTD(0)/CVNet وSpark ETL. [PDF](https://tonyzqin.wordpress.com/wp-content/uploads/2020/11/inte.2020.1047.pdf).
-12. Yue et al. (2024), [D2SN: End-to-End RL for Micro-View Order Dispatching](https://arxiv.org/abs/2408.10479) — two-layer MDP وPPO وHold action والمحاكي.
-13. Jiao et al. (2021), [Real-world Ride-hailing Vehicle Repositioning using Deep Reinforcement Learning](https://arxiv.org/abs/2103.04555) — AI Driver Assistant وإعادة تموضع فردي باستخدام Semi-MDP وBatch RL وDecision-time Planning وتجربة ميدانية.
-14. [DiDi Global 2025 Form 20-F — SEC](https://www.sec.gov/Archives/edgar/data/1764757/000110465926042350/didi-20251231x20f.htm) — إفصاح عام عن التنبؤ بالعرض/الطلب والحوافز وتوصيات إعادة التموضع؛ ليس كشفًا للكود الخاص.
-15. [CompactETA (KDD 2020)](https://www.kdd.org/kdd2020/accepted-papers/view/compacteta-a-fast-inference-system-for-travel-time-prediction.html) — Graph Attention وPositional Encoding.
-16. [HetETA (KDD 2020)](https://www.kdd.org/kdd2020/accepted-papers/view/heteta-heterogeneous-information-network-embedding-for-estimating-time-of-a.html) — multi-relational road graph وtemporal/graph convolution.
-17. [WDR ETA (KDD 2018)](https://doi.org/10.1145/3219819.3219900) — Wide + Deep + Recurrent.
-18. [didi/heteta](https://github.com/didi/heteta) — كود بحثي وtoy data غير حقيقية.
-19. [didi/hetsann](https://github.com/didi/hetsann) — أبحاث attention على رسوم غير متجانسة.
-20. [didi/KnowStreaming](https://github.com/didi/KnowStreaming) — منصة Kafka operations مفتوحة؛ لا تثبت استخدامًا في dispatch.
+12. Sadeghi Eshkevari et al. (2022), [Reinforcement Learning in the Wild: Scalable RL Dispatching Algorithm Deployed in Ridehailing Marketplace](https://doi.org/10.1145/3534678.3539095) — Expected TD وdriver-order utility وLM-UCB cancellation pruning وHungarian matching، ونتائج A/B.
+13. Yue et al. (2024), [D2SN: End-to-End RL for Micro-View Order Dispatching](https://arxiv.org/abs/2408.10479) — two-layer MDP وPPO وHold action والمحاكي.
+14. Jiao et al. (2021), [Real-world Ride-hailing Vehicle Repositioning using Deep Reinforcement Learning](https://arxiv.org/abs/2103.04555) — AI Driver Assistant وإعادة تموضع فردي باستخدام Semi-MDP وBatch RL وDecision-time Planning وتجربة ميدانية.
+15. [DiDi Global 2025 Form 20-F — SEC](https://www.sec.gov/Archives/edgar/data/1764757/000110465926042350/didi-20251231x20f.htm) — إفصاح عام عن التنبؤ بالعرض/الطلب والحوافز وتوصيات إعادة التموضع؛ ليس كشفًا للكود الخاص.
+16. [CompactETA (KDD 2020)](https://www.kdd.org/kdd2020/accepted-papers/view/compacteta-a-fast-inference-system-for-travel-time-prediction.html) — Graph Attention وPositional Encoding.
+17. [HetETA (KDD 2020)](https://www.kdd.org/kdd2020/accepted-papers/view/heteta-heterogeneous-information-network-embedding-for-estimating-time-of-a.html) — multi-relational road graph وtemporal/graph convolution.
+18. [WDR ETA (KDD 2018)](https://doi.org/10.1145/3219819.3219900) — Wide + Deep + Recurrent.
+19. [didi/heteta](https://github.com/didi/heteta) — كود بحثي وtoy data غير حقيقية.
+20. [didi/hetsann](https://github.com/didi/hetsann) — أبحاث attention على رسوم غير متجانسة.
+21. [didi/KnowStreaming](https://github.com/didi/KnowStreaming) — منصة Kafka operations مفتوحة؛ لا تثبت استخدامًا في dispatch.
 
 ### مراجعات علمية ومجتمعية
 21. [Dynamic Pricing and Matching in Ride-Hailing Platforms](https://doi.org/10.1002/nav.21872) — مراجعة matching والتسعير.
@@ -612,6 +638,7 @@
 - توجد مواد Uber عامة عن batch matching وETA وDeepETT وH3 والتنبؤ المكاني/الزماني وSurge والمحاكاة وTarot.
 - ورقة DiDi لعام 2020 تشرح Hungarian-based matching وSemi-MDP وTD(0)/CVNet والتدريب Offline عبر Spark ثم استخدام التقديرات في خدمة Online.
 - ورقة DiDi Labs لعام 2021 تعرض مساعد سائق فرديًا لإعادة التموضع باستخدام Semi-MDP وBatch RL وCVNet والتخطيط وقت القرار، مع تجربة ميدانية؛ وهي المرجع الألصق بـFleet Commander.
+- ورقة DiDi RLW لعام 2022 تصف خوارزمية dispatch منشورة واسعة النطاق تجمع Expected TD وutility مخصصًا وLM-UCB pruning وHungarian matching.
 - بحث DiDi لعام 2024 يعرض D2SN وTwo-layer MDP وقرارات Hold وتجارب ومحاكاة؛ لا يثبت أنه محرك الإنتاج العام.
 - توجد مستودعات عامة لأبحاث ETA وH3 وKafka tooling وLDR competition starter kit؛ ولا يكشف أي منها نظام dispatch التجاري الكامل أو كل مكونات AI Driver Assistant.
 
