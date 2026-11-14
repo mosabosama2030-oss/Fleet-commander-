@@ -103,7 +103,7 @@ paths:
   /auth/login:
     post:
       security: []
-      summary: Login (DEC-07 pending)
+      summary: Login (DEC-07 VERIFIED email+password)
       requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/LoginRequest' } } } }
       responses:
         '200': { description: ok, content: { application/json: { schema: { $ref: '#/components/schemas/TokenResponse' } } } }
@@ -133,6 +133,33 @@ paths:
     parameters: [ { $ref: '#/components/parameters/VehicleId' } ]
     get:   { summary: Get my vehicle, responses: { '200': { description: ok }, '404': { $ref: '#/components/responses/NotFound' } } }
     patch: { summary: Update my vehicle, responses: { '200': { description: ok }, '404': { $ref: '#/components/responses/NotFound' } } }
+  /auth/password-reset/request:
+    post:
+      security: []
+      summary: Request recovery email (always 202; never reveals whether the account exists)
+      requestBody: { required: true, content: { application/json: { schema: { type: object, additionalProperties: false, required: [login_identifier], properties: { login_identifier: { type: string } } } } } }
+      responses: { '202': { description: accepted }, '429': { $ref: '#/components/responses/RateLimited' } }
+  /auth/password-reset/confirm:
+    post:
+      security: []
+      summary: Set new password with one-time short-lived token (revokes all sessions)
+      requestBody: { required: true, content: { application/json: { schema: { type: object, additionalProperties: false, required: [token, new_password], properties: { token: { type: string }, new_password: { type: string, format: password } } } } } }
+      responses: { '204': { description: ok }, '422': { $ref: '#/components/responses/Validation' } }
+  /consents:
+    get:  { summary: List my consents, responses: { '200': { description: ok } } }
+    post:
+      summary: Grant consent (DEC-10 purpose shift_location only)
+      parameters: [ { $ref: '#/components/parameters/IdempotencyKey' } ]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, additionalProperties: false, required: [purpose], properties: { purpose: { type: string, enum: [shift_location] } } } } } }
+      responses: { '201': { description: created }, '422': { $ref: '#/components/responses/Validation' } }
+  /consents/{id}:
+    delete: { summary: Revoke consent (stops location acceptance immediately; deletion of past points per retention policy UNKNOWN), parameters: [ { name: id, in: path, required: true, schema: { type: string, format: uuid } } ], responses: { '204': { description: ok }, '404': { $ref: '#/components/responses/NotFound' } } }
+  /shifts/{id}/locations:
+    post:
+      summary: Submit location points (batch) for an OPEN shift; rejected without active consent
+      parameters: [ { name: id, in: path, required: true, schema: { type: string, format: uuid } }, { $ref: '#/components/parameters/IdempotencyKey' } ]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, additionalProperties: false, required: [points], properties: { points: { type: array, maxItems: 100, items: { type: object, required: [lat, lon, captured_at], properties: { lat: { type: number, minimum: -90, maximum: 90 }, lon: { type: number, minimum: -180, maximum: 180 }, accuracy_m: { type: number, minimum: 0 }, captured_at: { type: string, format: date-time } } } } } } } } }
+      responses: { '202': { description: accepted }, '403': { description: no active consent }, '409': { description: shift not OPEN }, '404': { $ref: '#/components/responses/NotFound' } }
   /attachments:
     post:
       summary: Upload (multipart; server validates type by content, size, ownership)

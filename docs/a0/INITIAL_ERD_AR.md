@@ -16,6 +16,8 @@ erDiagram
   Shift ||--o{ ExpenseEntry : has
   Shift ||--o{ Settlement : settled_by
   Shift ||--o{ Correction : corrected_by
+  Shift ||--o{ LocationPoint : located_by
+  ConsentGrant ||--o{ LocationPoint : authorizes
   Trip ||--o{ Correction : corrected_by
   ExpenseEntry ||--o{ Correction : corrected_by
   Trip ||--|| RevenueEntry : records
@@ -38,6 +40,7 @@ erDiagram
 |---|---|
 | Vehicle | **مركبة نشطة واحدة لكل مالك** (قيد فريد جزئي `WHERE status='active'`) — DEC-01 |
 | Trip | إلزامي لكل إيراد (DEC-02)؛ `platform`، `occurred_at`، `fare_minor >= 0` كما سجّله الكابتن؛ لا حذف، إبطال منطقي فقط |
+| LocationPoint | DEC-10: `shift_id` و`consent_id` NOT NULL؛ `lat/lon/accuracy_m/captured_at`؛ يُقبل فقط والشيفت OPEN وعقد ConsentGrant غير مسحوب؛ الاحتفاظ UNKNOWN |
 | Correction | append-only: `entity_type`, `entity_id`, `field`, `old_value`, `new_value`, `reason` NOT NULL, `actor_user_id`, `created_at` — DEC-06 |
 | Shift | `owner_user_id` NOT NULL؛ `vehicle_id` ينتمي لنفس المالك؛ شيفت واحد OPEN لكل مالك (PROPOSED)؛ `operating_date` = تاريخ البدء بتوقيت القاهرة (DEC-04)؛ `ended_at >= started_at`؛ التوقيت من الخادم |
 | OdometerReading | `phase ∈ {start,end}` فريد لكل شيفت؛ `end >= start` |
@@ -49,6 +52,6 @@ erDiagram
 | ConsentGrant | `purpose`، `scope`، `retention`، `granted_at`، `revoked_at` |
 
 ## نقاط مفتوحة
-- المنطقة (Zone/H3) كعمود في Trip أم كيان؟ (DEC-10)
+- المنطقة (Zone/H3): تُشتق من LocationPoint أو تُدخل يدويًا؟ — تُحسم مع ALG-11 (D2)
 - ~~تمثيل Correction~~ حُسم: سجل `Correction` منفصل append-only (INFERRED من DEC-06، للمدير الاعتراض)
 - ERD معتمد = شرط G1؛ هذا ليس ERD معتمدًا.

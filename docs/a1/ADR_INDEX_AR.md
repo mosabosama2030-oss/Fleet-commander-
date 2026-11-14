@@ -11,5 +11,6 @@
 | ADR-005 | تصحيح append-only مع AuditEvent | تعديل مباشر | DEC-06 |
 | ADR-006 | Idempotency-Key لكل كتابة مالية | لا شيء | NFR-004 |
 | ADR-007 | الحساب المالي خارج LLM | — | NFR-015 (VERIFIED بالخطة) |
-| ADR-008 | بلا GPS مستمر في MVP | GPS مستمر بموافقة | DEC-10 |
-| ADR-009 | Web أولًا متجاوب؛ Android قرار منفصل (PWA/WebView/Native) | — | DEC-08 |
+| ADR-008 | **GPS أثناء الشيفت بموافقة صريحة (DEC-10 VERIFIED)**؛ في PWA يعمل في الواجهة الأمامية فقط (قيد منصة — INFERRED)؛ التتبع بالخلفية الموثوق يحتاج تغليف Android | بلا GPS | DEC-10، ADR-009 |
+| ADR-009 | **PWA متجاوب أولًا؛ Android لاحقًا كتغليف (DEC-08 VERIFIED جزئيًا)** — يقتضي مراجعة T-14 (WebView) عند التغليف | Native/Flutter | DEC-08 |
+| ADR-010 | بريد + كلمة مرور واستعادة بالبريد | OTP/مزود هوية | DEC-07 VERIFIED |

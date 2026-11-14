@@ -28,7 +28,9 @@
 | Settlement.status | enum(PENDING,CONFIRMED,REJECTED) | | DEC-13 |
 | Attachment.storage_key / media_type / size_bytes / checksum_sha256 | text/text/int/text | خاص؛ تنزيل بتفويض | |
 | AuditEvent.actor_user_id / entity_type / entity_id / action / reason / occurred_at | | append-only | |
-| ConsentGrant.purpose / scope / retention_days / granted_at / revoked_at | | | DEC-10 |
+| ConsentGrant.purpose / scope / retention_days / granted_at / revoked_at | enum(shift_location)/text/int?/timestamptz/timestamptz? | سحب الموافقة يوقف القبول فورًا؛ retention_days UNKNOWN | DEC-10 |
+| LocationPoint.shift_id / consent_id | UUID | FK؛ NOT NULL | DEC-10 |
+| LocationPoint.lat / lon / accuracy_m / captured_at | numeric/numeric/numeric/timestamptz | نطاق إحداثيات صالح؛ captured_at ضمن مدة الشيفت | |
 
 ## تشتق لاحقًا (لا تُخزن كحقيقة)
 KPIs: الصيغة والفترة والمصدر وحجم العينة وحداثة البيانات مع كل قيمة (D2).
