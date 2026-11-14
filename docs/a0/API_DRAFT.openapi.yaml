@@ -1,4 +1,4 @@
-# A0-15 — API Draft (PROPOSED). Not final: depends on DEC-01/02/05/06/07.
+# A0-15 — API Draft (PROPOSED). Session 04: DEC-01/02/04/06 applied (VERIFIED). Still depends on DEC-03/05/07.
 # Money: integer minor units (piastre) + currency. Owner is derived from the session, never from the request body.
 openapi: 3.0.3
 info:
@@ -54,7 +54,9 @@ paths:
     get:  { summary: List my shifts (paged), responses: { '200': { description: ok } } }
     post: { summary: Start shift, parameters: [ { $ref: '#/components/parameters/IdempotencyKey' } ], responses: { '201': { description: created }, '409': { description: conflict } } }
   /shifts/{id}/end:     { post: { summary: End shift, parameters: [ { name: id, in: path, required: true, schema: { type: string } }, { $ref: '#/components/parameters/IdempotencyKey' } ], responses: { '200': { description: ok }, '409': { description: invalid state } } } }
-  /shifts/{id}/revenue: { post: { summary: Add revenue entry, parameters: [ { name: id, in: path, required: true, schema: { type: string } }, { $ref: '#/components/parameters/IdempotencyKey' } ], responses: { '201': { description: created } } } }
+  /shifts/{id}/trips: { get: { summary: List trips of my shift (paged), parameters: [ { name: id, in: path, required: true, schema: { type: string } } ], responses: { '200': { description: ok } } }, post: { summary: Record one trip (DEC-02 trip-by-trip; fare as recorded by captain, no calculation), parameters: [ { name: id, in: path, required: true, schema: { type: string } }, { $ref: '#/components/parameters/IdempotencyKey' } ], responses: { '201': { description: created }, '409': { description: shift not OPEN }, '422': { description: validation } } } }
+  /trips/{id}/void: { post: { summary: Logically void a trip with reason (no deletion), parameters: [ { name: id, in: path, required: true, schema: { type: string } }, { $ref: '#/components/parameters/IdempotencyKey' } ], responses: { '200': { description: ok } } } }
+  /shifts/{id}/corrections: { post: { summary: Append correction to a CLOSED shift or its entries (DEC-06; reason required; creates Correction + AuditEvent), parameters: [ { name: id, in: path, required: true, schema: { type: string } }, { $ref: '#/components/parameters/IdempotencyKey' } ], responses: { '201': { description: created }, '409': { description: shift not CLOSED }, '422': { description: reason missing } } } }
   /shifts/{id}/expenses: { post: { summary: Add expense, parameters: [ { name: id, in: path, required: true, schema: { type: string } }, { $ref: '#/components/parameters/IdempotencyKey' } ], responses: { '201': { description: created } } } }
   /shifts/{id}/summary: { get: { summary: Deterministic financial summary with Calculation ID, parameters: [ { name: id, in: path, required: true, schema: { type: string } } ], responses: { '200': { description: ok } } } }
   /settlements:  { post: { summary: Record settlement, parameters: [ { $ref: '#/components/parameters/IdempotencyKey' } ], responses: { '201': { description: created } } } }

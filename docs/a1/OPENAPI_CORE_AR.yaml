@@ -125,7 +125,7 @@ paths:
       parameters: [ { $ref: '#/components/parameters/Cursor' }, { $ref: '#/components/parameters/Limit' } ]
       responses: { '200': { description: ok }, '401': { $ref: '#/components/responses/Unauthorized' } }
     post:
-      summary: Create vehicle (count limit depends on DEC-01)
+      summary: Create vehicle. DEC-01 (VERIFIED) = one vehicle only; 409 if an active vehicle exists (retire it first via PATCH status=retired)
       parameters: [ { $ref: '#/components/parameters/IdempotencyKey' } ]
       requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/VehicleCreate' } } } }
       responses: { '201': { description: created, content: { application/json: { schema: { $ref: '#/components/schemas/Vehicle' } } } }, '409': { $ref: '#/components/responses/Conflict' }, '422': { $ref: '#/components/responses/Validation' } }

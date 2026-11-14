@@ -1,6 +1,6 @@
 # ERD أولي — A0-14
 
-- الحالة: PROPOSED — مسودة لا تعتمد قبل DEC-01/02/05/06/12/13
+- الحالة: PROPOSED — حُدّث في الجلسة 04 بقرارات DEC-01/02/04/06 (VERIFIED)؛ ما زال ينتظر DEC-03/05/12/13
 - الجلسة: 01
 - مبادئ: الملكية تُستخرج من الجلسة لا من العميل · المبالغ أعداد صحيحة بالقرش مع `currency` · الحذف المنطقي للسجلات المالية · كل تصحيح يترك AuditEvent.
 
@@ -15,7 +15,10 @@ erDiagram
   Shift ||--o{ RevenueEntry : has
   Shift ||--o{ ExpenseEntry : has
   Shift ||--o{ Settlement : settled_by
-  Trip ||--o{ RevenueEntry : yields
+  Shift ||--o{ Correction : corrected_by
+  Trip ||--o{ Correction : corrected_by
+  ExpenseEntry ||--o{ Correction : corrected_by
+  Trip ||--|| RevenueEntry : records
   UserAccount ||--o{ Attachment : owns
   Attachment ||--o{ OdometerReading : proves
   Attachment ||--o{ ExpenseEntry : proves
@@ -33,7 +36,10 @@ erDiagram
 ## قيود مقترحة
 | الكيان | قيود |
 |---|---|
-| Shift | `owner_user_id` NOT NULL؛ `vehicle_id` ينتمي لنفس المالك؛ شيفت واحد OPEN لكل مالك (إن اعتمد DEC) ؛ `ended_at >= started_at`؛ التوقيت من الخادم |
+| Vehicle | **مركبة نشطة واحدة لكل مالك** (قيد فريد جزئي `WHERE status='active'`) — DEC-01 |
+| Trip | إلزامي لكل إيراد (DEC-02)؛ `platform`، `occurred_at`، `fare_minor >= 0` كما سجّله الكابتن؛ لا حذف، إبطال منطقي فقط |
+| Correction | append-only: `entity_type`, `entity_id`, `field`, `old_value`, `new_value`, `reason` NOT NULL, `actor_user_id`, `created_at` — DEC-06 |
+| Shift | `owner_user_id` NOT NULL؛ `vehicle_id` ينتمي لنفس المالك؛ شيفت واحد OPEN لكل مالك (PROPOSED)؛ `operating_date` = تاريخ البدء بتوقيت القاهرة (DEC-04)؛ `ended_at >= started_at`؛ التوقيت من الخادم |
 | OdometerReading | `phase ∈ {start,end}` فريد لكل شيفت؛ `end >= start` |
 | RevenueEntry/ExpenseEntry | `amount_minor >= 0`؛ `currency` إلزامي؛ `source` إلزامي؛ `idempotency_key` فريد لكل مالك |
 | Settlement | `status ∈ {pending,confirmed,rejected}`؛ مسجلة ≠ مؤكدة |
@@ -44,5 +50,5 @@ erDiagram
 
 ## نقاط مفتوحة
 - المنطقة (Zone/H3) كعمود في Trip أم كيان؟ (DEC-10)
-- تمثيل Correction: سجل تصحيح منفصل أم إصدارات؟ (DEC-06)
+- ~~تمثيل Correction~~ حُسم: سجل `Correction` منفصل append-only (INFERRED من DEC-06، للمدير الاعتراض)
 - ERD معتمد = شرط G1؛ هذا ليس ERD معتمدًا.

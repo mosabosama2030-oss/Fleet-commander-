@@ -16,7 +16,12 @@
 | OdometerReading.phase | enum(start,end) | فريد لكل (shift,phase) | |
 | OdometerReading.value_km | integer | >= 0؛ end >= start | |
 | OdometerReading.attachment_id | UUID? | FK | DEC-12 |
-| Trip.id / shift_id / source / occurred_at | UUID/UUID/enum/timestamptz | | DEC-02 |
+| Trip.id / shift_id | UUID | FK؛ إلزامي لكل إيراد (DEC-02) | |
+| Trip.platform | enum(uber,didi,careem,indrive,other) | القائمة PROPOSED — تأكيد الكابتن | |
+| Trip.occurred_at / fare_minor / currency | timestamptz/int/char(3) | fare_minor >= 0؛ كما أدخله الكابتن (ACTUAL-كما-سُجّل)، لا حساب | |
+| Trip.status | enum(RECORDED,VOIDED) | إبطال بسبب، لا حذف | |
+| Correction.entity_type/entity_id/field/old_value/new_value/reason/actor_user_id/created_at | | append-only؛ reason NOT NULL | DEC-06 |
+| Vehicle (قيد) | | مركبة active واحدة لكل مالك | DEC-01 |
 | RevenueEntry.amount_minor / currency / source / idempotency_key | int/char(3)/enum/text | >=0؛ مفتاح فريد لكل مالك | |
 | ExpenseEntry.category | enum | DEC-05 | |
 | ExpenseEntry.amount_minor / occurred_at / note | int/timestamptz/text | >=0 | |
