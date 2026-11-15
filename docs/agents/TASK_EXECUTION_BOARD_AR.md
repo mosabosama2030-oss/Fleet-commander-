@@ -27,3 +27,12 @@
 ## سياسة تشغيل Copilot Free
 
 يمكن استخدام الأمر /fc-run كمنفذ احتياطي لمهام #2–#9 التي لا يوجد لها Claim أو فرع عامل أو PR. لا يستخدم على مهمة عليها Claim نشط. هذا منفذ Copilot واحد وليس حسابات مزودي Role IDs المذكورين. Issue #10 يبقى Meta AI.
+
+
+## بنية التنفيذ المجاني — PR #16 (VERIFIED)
+- PR #16 مفتوح Draft وغير مدمج: https://github.com/mosabosama2030-oss/Fleet-commander-/pull/16
+- Head SHA الحالي بعد إصلاح installer وإضافة copilot-requests: none: `ff7840fa7ebd06cdb32e700e49195d0c2c50aadb`.
+- Actions Run `43675869609`: SUCCESS — تثبيت gh-aw v1.2.2 مع checksum، strict compile، وفحص lock output.
+- Actions Run `43675985729`: SUCCESS بعد آخر تعديل للـfrontmatter. يوجد تحذير أن user-rate-limit experimental.
+- Run `43675705652` فشل أثناء محاولة تثبيت gh-aw بصيغة gh extension، وتم تصحيح ذلك باستخدام standalone installer pinned/checksum-verified.
+- `COPILOT_GITHUB_TOKEN` غير مضاف؛ اختبار /fc-run وDraft PR الفعلي لم يُنفذ بعد.
