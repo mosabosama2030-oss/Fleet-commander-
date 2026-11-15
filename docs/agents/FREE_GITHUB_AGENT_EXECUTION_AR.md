@@ -58,7 +58,10 @@ Issue #10 يخص META-DESIGN وإنتاج الاتجاهات/الأصول الم
 
 ## حالات التحقق
 
-- GitHub Actions workflow source: مضاف على فرع تطوير؛ لم يعمل بعد.
-- gh-aw compilation: NOT_RUN حتى تشغيل compile workflow في GitHub Actions.
+- GitHub Actions workflow source: مضاف على فرع PR #16.
+- gh-aw v1.2.2 installation + checksum verification: PASS في تشغيل 43675869609 و43675985729.
+- gh-aw strict compile `gh aw compile fc-agent --validate --strict`: PASS في التشغيلين؛ تم توليد lock وفحص وجوده داخل runner.
+- أول تشغيل 43675705652 فشل في طريقة تثبيت الإضافة القديمة؛ تم إصلاح الخطوة ولا يُخفى هذا الفشل التاريخي.
+- ميزة user-rate-limit تعمل مع تحذير compile بأنها experimental في إصدار gh-aw v1.2.2.
 - Copilot authentication/secret: NOT_CONFIGURED من خلال الأدوات المتاحة؛ لا أملك قراءة الأسرار ولا أطلب كشفها.
-- End-to-end issue → Copilot → Draft PR: NOT_RUN.
+- End-to-end issue → Copilot → Draft PR: NOT_RUN؛ يحتاج دمج مصدر PR #16، ثم lock PR الناتج، ثم إعداد COPILOT_GITHUB_TOKEN.
