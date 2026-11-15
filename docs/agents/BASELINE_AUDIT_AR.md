@@ -8,6 +8,8 @@
 - Base SHA: `ee2a019c1eb604933d984ff9aee03c4f898fbcd6`
 - Working branch: `agent/CHATGPT-1/FC-001`
 - حالة هذا التقرير: **PARTIAL — baseline captured; task index refresh blocked by an overlapping open PR**
+- تصنيف الأدلة: VERIFIED / INFERRED / PROPOSED / UNKNOWN.
+- تصنيف التنفيذ: FIXED_AND_TESTED / PARTIAL / NOT_RUN / NOT_REQUIRED.
 
 ## 1. الملخص التنفيذي
 
@@ -46,7 +48,7 @@
 
 - URL: https://github.com/mosabosama2030-oss/Fleet-commander-/pull/1
 - الحالة: OPEN، NOT MERGED، **NOT DRAFT**.
-- Base: `main`; Base SHA عند إنشاء PR: `6cebb40136f11027ec7e5e3c50f62a813a03938f`.
+- Base: `main`; قيمة `base_sha` التي أعادها PR metadata هي `6cebb40136f11027ec7e5e3c50f62a813a03938f`، وهي نفسها merge base التي أعادتها مقارنة GitHub؛ أما HEAD الحالي لـmain فهو `ee2a019c1eb604933d984ff9aee03c4f898fbcd6`.
 - Head branch: `docs/a0-captain-requirements`.
 - Head SHA: `a727c8a591a312b0e856d297e7c1bc50fa5b140a`.
 - مقارنة Head مع main الحالي: 18 commits ahead / 20 behind؛ merge base هو `6cebb40136f11027ec7e5e3c50f62a813a03938f`.
@@ -133,12 +135,12 @@
 
 | الفحص | النتيجة | الدليل |
 |---|---|---|
-| قراءة `AGENTS.md` ووثائق نموذج الفريق والفهرس وبدء التشغيل من main | FIXED_AND_TESTED — قراءة/فحص مكتمل | SHA/روابط الملفات على main |
-| قراءة Issue #2 وIssues #3–#11 و#17 | FIXED_AND_TESTED — الحالة والمحتوى جرى استرجاعهما | روابط Issues |
-| فحص PRs المفتوحة وبيانات PR #1 و#13–#21 | FIXED_AND_TESTED — بيانات الحالة/الفروع/SHAs جرى استرجاعها | روابط PRs |
-| مقارنة main مع PR #1 head | FIXED_AND_TESTED — 18 ahead / 20 behind | GitHub compare؛ merge base `6cebb40136f11027ec7e5e3c50f62a813a03938f` |
-| مقارنة main مع session/05 | FIXED_AND_TESTED — 23 ahead / 20 behind | GitHub compare؛ session head `fd0805a579daad06922fe654173bdc30159d6b4f` |
-| مقارنة PR #1 head مع session/05 | FIXED_AND_TESTED — session/05 ahead 5 / behind 0 | GitHub compare |
+| قراءة `AGENTS.md` ووثائق نموذج الفريق والفهرس وبدء التشغيل من main | VERIFIED؛ لا ينطبق إصلاح/اختبار برمجي | SHA/روابط الملفات على main |
+| قراءة Issue #2 وIssues #3–#11 و#17 | VERIFIED؛ لا ينطبق إصلاح/اختبار برمجي | روابط Issues |
+| فحص PRs المفتوحة وبيانات PR #1 و#13–#21 | VERIFIED؛ لا ينطبق إصلاح/اختبار برمجي | روابط PRs |
+| مقارنة main مع PR #1 head | VERIFIED؛ 18 ahead / 20 behind | GitHub compare؛ merge base `6cebb40136f11027ec7e5e3c50f62a813a03938f` |
+| مقارنة main مع session/05 | VERIFIED؛ 23 ahead / 20 behind | GitHub compare؛ session head `fd0805a579daad06922fe654173bdc30159d6b4f` |
+| مقارنة PR #1 head مع session/05 | VERIFIED؛ session/05 ahead 5 / behind 0 | GitHub compare |
 | تحديث `AGENT_TASK_INDEX_AR.md` | NOT RUN — تعارض مع PR #16 | لم يُكتب الملف في هذا الفرع |
 | اختبارات المنتج أو البناء | NOT_REQUIRED لهذه الوثيقة فقط؛ لم تُنفذ | لا كود منتج في النطاق |
 | `git diff --check` | NOT RUN | لا توجد بيئة Git CLI مستخدمة في هذه الجلسة |
@@ -149,7 +151,7 @@
 - ROLE: CHATGPT-1 — Engineering Coordinator
 - ISSUE: #2 — FC-001
 - BASE SHA: `ee2a019c1eb604933d984ff9aee03c4f898fbcd6`
-- HEAD SHA: سيُسجل بعد إنشاء Commit لهذا التقرير.
+- HEAD SHA عند إنشاء التقرير: `913024a5ab3f7f215e009f1f036a34d172e54ae0` (سيُحدّث بعد آخر تعديل توثيقي).
 - CHANGED PATHS: `docs/agents/BASELINE_AUDIT_AR.md` فقط.
 - TESTS: فحوص GitHub metadata/compare أعلاه؛ لا اختبارات منتج.
 - BLOCKER: PR #16 المفتوح Draft يغيّر `AGENT_TASK_INDEX_AR.md`.
