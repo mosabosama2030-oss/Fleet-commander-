@@ -28,10 +28,17 @@ jobs:
     steps:
       - name: Checkout source
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - name: Install pinned GitHub Agentic Workflows CLI
-        run: gh extension install github/gh-aw@v1.2.2
+      - name: Install pinned GitHub Agentic Workflows CLI with checksum verification
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_AW_INSTALLER_URL: https://raw.githubusercontent.com/github/gh-aw/48d1b1b7142d1748885227a8ac3fe57e8ee36a0b/install-gh-aw.sh
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location "$GH_AW_INSTALLER_URL" \
+            --output "$RUNNER_TEMP/install-gh-aw.sh"
+          bash "$RUNNER_TEMP/install-gh-aw.sh" v1.2.2
+          echo "$HOME/.local/share/gh/extensions/gh-aw" >> "$GITHUB_PATH"
+          "$HOME/.local/share/gh/extensions/gh-aw/gh-aw" version
       - name: Compile and strictly validate
         run: |
           gh aw version
@@ -49,10 +56,17 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
-      - name: Install pinned GitHub Agentic Workflows CLI
-        run: gh extension install github/gh-aw@v1.2.2
+      - name: Install pinned GitHub Agentic Workflows CLI with checksum verification
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_AW_INSTALLER_URL: https://raw.githubusercontent.com/github/gh-aw/48d1b1b7142d1748885227a8ac3fe57e8ee36a0b/install-gh-aw.sh
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location "$GH_AW_INSTALLER_URL" \
+            --output "$RUNNER_TEMP/install-gh-aw.sh"
+          bash "$RUNNER_TEMP/install-gh-aw.sh" v1.2.2
+          echo "$HOME/.local/share/gh/extensions/gh-aw" >> "$GITHUB_PATH"
+          "$HOME/.local/share/gh/extensions/gh-aw/gh-aw" version
       - name: Compile and strictly validate
         run: |
           gh aw version
