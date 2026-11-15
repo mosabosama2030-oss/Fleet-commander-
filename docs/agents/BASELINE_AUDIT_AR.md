@@ -151,7 +151,7 @@
 - ROLE: CHATGPT-1 — Engineering Coordinator
 - ISSUE: #2 — FC-001
 - BASE SHA: `ee2a019c1eb604933d984ff9aee03c4f898fbcd6`
-- HEAD SHA عند إنشاء التقرير: `913024a5ab3f7f215e009f1f036a34d172e54ae0` (سيُحدّث بعد آخر تعديل توثيقي).
+- HEAD SHA: يُؤخذ من بيانات PR #22 عند التسليم؛ المرجع الحي هو رأس الفرع، وليس SHA ثابتًا داخل مستند قد يتغير.
 - CHANGED PATHS: `docs/agents/BASELINE_AUDIT_AR.md` فقط.
 - TESTS: فحوص GitHub metadata/compare أعلاه؛ لا اختبارات منتج.
 - BLOCKER: PR #16 المفتوح Draft يغيّر `AGENT_TASK_INDEX_AR.md`.
