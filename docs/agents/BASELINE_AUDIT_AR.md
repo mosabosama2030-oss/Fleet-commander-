@@ -48,7 +48,7 @@
 
 - URL: https://github.com/mosabosama2030-oss/Fleet-commander-/pull/1
 - الحالة: OPEN، NOT MERGED، **NOT DRAFT**.
-- Base: `main`; قيمة `base_sha` التي أعادها PR metadata هي `6cebb40136f11027ec7e5e3c50f62a813a03938f`، وهي نفسها merge base التي أعادتها مقارنة GitHub؛ أما HEAD الحالي لـmain فهو `ee2a019c1eb604933d984ff9aee03c4f898fbcd6`.
+- Base branch: `main` (HEAD الحالي عند الفحص: `ee2a019c1eb604933d984ff9aee03c4f898fbcd6`). Merge base الذي أعادته مقارنة GitHub هو `6cebb40136f11027ec7e5e3c50f62a813a03938f`؛ وهما مرجعان مختلفان.
 - Head branch: `docs/a0-captain-requirements`.
 - Head SHA: `a727c8a591a312b0e856d297e7c1bc50fa5b140a`.
 - مقارنة Head مع main الحالي: 18 commits ahead / 20 behind؛ merge base هو `6cebb40136f11027ec7e5e3c50f62a813a03938f`.
@@ -109,7 +109,7 @@
 | #15 | OPEN / NOT DRAFT | MANUS-1 FC-007 | لا |
 | #16 | OPEN / DRAFT | GitHub free agent runner وتحديث task index | `docs/agents/AGENT_TASK_INDEX_AR.md`؛ تعارض مباشر يمنع تعديله بالتوازي |
 | #18 | OPEN / NOT DRAFT | CLAUDE-1 FC-011 | لا |
-| #19 | OPEN / NOT DRAFT | MANUS-2 FC-008 | لا |
+| #19 | OPEN / DRAFT | MANUS-2 FC-008 | لا |
 | #20 | OPEN / NOT DRAFT | MANUS-1 FC-004، refs #5 | لا |
 | #21 | OPEN / NOT DRAFT | GROK-1 FC-005 architecture review | لا |
 
