@@ -21,6 +21,7 @@ permissions:
   contents: read
   issues: read
   pull-requests: read
+  copilot-requests: none
 tools:
   edit:
   bash:
