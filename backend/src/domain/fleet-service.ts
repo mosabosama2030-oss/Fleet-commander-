@@ -109,7 +109,7 @@ export class FleetService {
   }
 
   registerVehicle(ownerUserId: string, label: string): Vehicle {
-    const clean = text(label, 'label', 100);
+    const clean = text(label, 'label', 60); // OpenAPI VehicleCreate.label maxLength 60
     for (const v of this.#vehicles.values()) {
       if (v.ownerUserId === ownerUserId && v.status === 'active') {
         throw conflict('one active vehicle per captain (DEC-01)');
@@ -185,6 +185,7 @@ export class FleetService {
 
   recordTrip(input: RecordTripInput): { trip: Trip; replayed: boolean } {
     const key = text(input.idempotencyKey, 'idempotencyKey', 128);
+    if (key.length < 16) throw validation('idempotencyKey must be 16-128 characters'); // OpenAPI IdempotencyKey
     if (!(PLATFORMS as readonly string[]).includes(input.platform)) {
       throw validation(`platform must be one of: ${PLATFORMS.join(', ')}`);
     }
@@ -197,7 +198,7 @@ export class FleetService {
     const prior = this.#idempotency.get(scopedKey);
     if (prior) {
       if (prior.fingerprint !== fingerprint) {
-        throw new DomainError('IDEMPOTENCY_MISMATCH', 'idempotency key reused with a different payload');
+        throw new DomainError('IDEMPOTENCY_KEY_REUSED', 'idempotency key reused with a different payload');
       }
       return { trip: this.#ownedTrip(input.ownerUserId, prior.tripId), replayed: true }; // T-IDEM-01
     }

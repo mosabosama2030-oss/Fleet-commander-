@@ -34,7 +34,7 @@ const trip = (shiftId: string, over: Partial<{ key: string; fare: number; at: st
   platform: 'uber',
   occurredAt: over.at ?? '2026-11-14T09:00:00Z',
   fareMinor: over.fare ?? 15000,
-  idempotencyKey: over.key ?? 'k1',
+  idempotencyKey: over.key ?? 'key-0000000000001',
 });
 
 describe('money (DEC-09 PROPOSED: integer minor units)', () => {
@@ -44,7 +44,7 @@ describe('money (DEC-09 PROPOSED: integer minor units)', () => {
   });
   it('rejects fractions, negatives, NaN, strings and unsafe integers', () => {
     for (const bad of [12.5, -1, Number.NaN, Infinity, '100', null, undefined, 2 ** 53]) {
-      rejects(() => money(bad), 'VALIDATION');
+      rejects(() => money(bad), 'VALIDATION_FAILED');
     }
   });
 });
@@ -54,6 +54,11 @@ describe('vehicle (DEC-01: one vehicle only)', () => {
     const { svc } = setup();
     svc.registerVehicle(CAPTAIN, 'Car A');
     rejects(() => svc.registerVehicle(CAPTAIN, 'Car B'), 'CONFLICT');
+  });
+  it('enforces the contract label length limit (OpenAPI VehicleCreate: max 60)', () => {
+    const { svc } = setup();
+    assert.equal(svc.registerVehicle(CAPTAIN, 'x'.repeat(60)).label.length, 60);
+    rejects(() => svc.registerVehicle(OTHER, 'x'.repeat(61)), 'VALIDATION_FAILED');
   });
   it('allows another captain to register their own vehicle', () => {
     const { svc } = setup();
@@ -75,7 +80,7 @@ describe('shift state machine', () => {
   it('T-SH-02 rejects end odometer lower than start', () => {
     const env = setup();
     const s = openShift(env, 1000);
-    rejects(() => env.svc.endShift({ ownerUserId: CAPTAIN, shiftId: s.id, endOdometerKm: 999 }), 'VALIDATION');
+    rejects(() => env.svc.endShift({ ownerUserId: CAPTAIN, shiftId: s.id, endOdometerKm: 999 }), 'VALIDATION_FAILED');
     assert.equal(env.svc.getShift(CAPTAIN, s.id).status, 'OPEN');
   });
 
@@ -104,7 +109,7 @@ describe('shift state machine', () => {
   it('cancel requires a reason and only works on OPEN shifts', () => {
     const env = setup();
     const s = openShift(env);
-    rejects(() => env.svc.cancelShift({ ownerUserId: CAPTAIN, shiftId: s.id, reason: '  ' }), 'VALIDATION');
+    rejects(() => env.svc.cancelShift({ ownerUserId: CAPTAIN, shiftId: s.id, reason: '  ' }), 'VALIDATION_FAILED');
     const c = env.svc.cancelShift({ ownerUserId: CAPTAIN, shiftId: s.id, reason: 'started by mistake' });
     assert.equal(c.status, 'CANCELLED');
     rejects(() => env.svc.cancelShift({ ownerUserId: CAPTAIN, shiftId: s.id, reason: 'again' }), 'CONFLICT');
@@ -115,7 +120,7 @@ describe('shift state machine', () => {
     const { svc } = setup();
     const v = svc.registerVehicle(CAPTAIN, 'Car');
     for (const bad of [-1, 10.5, Number.NaN, '5' as unknown as number]) {
-      rejects(() => svc.startShift({ ownerUserId: CAPTAIN, vehicleId: v.id, startOdometerKm: bad }), 'VALIDATION');
+      rejects(() => svc.startShift({ ownerUserId: CAPTAIN, vehicleId: v.id, startOdometerKm: bad }), 'VALIDATION_FAILED');
     }
   });
 
@@ -134,17 +139,17 @@ describe('trips (DEC-02: trip by trip)', () => {
     const s = openShift(env);
     assert.equal(env.svc.recordTrip(trip(s.id)).trip.status, 'RECORDED');
     env.svc.endShift({ ownerUserId: CAPTAIN, shiftId: s.id, endOdometerKm: 1100 });
-    rejects(() => env.svc.recordTrip(trip(s.id, { key: 'k2' })), 'CONFLICT');
+    rejects(() => env.svc.recordTrip(trip(s.id, { key: 'key-0000000000002' })), 'CONFLICT');
   });
 
   it('validates platform, fare and timestamp', () => {
     const env = setup();
     const s = openShift(env);
-    rejects(() => env.svc.recordTrip({ ...trip(s.id), platform: 'taxi' }), 'VALIDATION');
-    rejects(() => env.svc.recordTrip(trip(s.id, { fare: 99.5 })), 'VALIDATION');
-    rejects(() => env.svc.recordTrip(trip(s.id, { fare: -5 })), 'VALIDATION');
-    rejects(() => env.svc.recordTrip(trip(s.id, { at: '2026-11-14 09:00' })), 'VALIDATION');
-    rejects(() => env.svc.recordTrip({ ...trip(s.id), idempotencyKey: '' }), 'VALIDATION');
+    rejects(() => env.svc.recordTrip({ ...trip(s.id), platform: 'taxi' }), 'VALIDATION_FAILED');
+    rejects(() => env.svc.recordTrip(trip(s.id, { fare: 99.5 })), 'VALIDATION_FAILED');
+    rejects(() => env.svc.recordTrip(trip(s.id, { fare: -5 })), 'VALIDATION_FAILED');
+    rejects(() => env.svc.recordTrip(trip(s.id, { at: '2026-11-14 09:00' })), 'VALIDATION_FAILED');
+    rejects(() => env.svc.recordTrip({ ...trip(s.id), idempotencyKey: '' }), 'VALIDATION_FAILED');
   });
 
   it('T-IDEM-01 replaying the same key and payload returns one trip', () => {
@@ -162,7 +167,33 @@ describe('trips (DEC-02: trip by trip)', () => {
     const env = setup();
     const s = openShift(env);
     env.svc.recordTrip(trip(s.id));
-    rejects(() => env.svc.recordTrip(trip(s.id, { fare: 20000 })), 'IDEMPOTENCY_MISMATCH');
+    rejects(() => env.svc.recordTrip(trip(s.id, { fare: 20000 })), 'IDEMPOTENCY_KEY_REUSED');
+  });
+
+  it('enforces the Idempotency-Key length contract (16..128)', () => {
+    const attempt = (len: number) => {
+      const env = setup();
+      const s = openShift(env);
+      return () => env.svc.recordTrip(trip(s.id, { key: 'k'.repeat(len) }));
+    };
+    rejects(attempt(15), 'VALIDATION_FAILED');
+    assert.equal(attempt(16)().replayed, false);
+    assert.equal(attempt(128)().replayed, false);
+    rejects(attempt(129), 'VALIDATION_FAILED');
+  });
+
+  it('maps wire codes and HTTP hints to OPENAPI_CORE (reuse = 409 IDEMPOTENCY_KEY_REUSED)', () => {
+    const env = setup();
+    const s = openShift(env);
+    env.svc.recordTrip(trip(s.id));
+    assert.throws(
+      () => env.svc.recordTrip(trip(s.id, { fare: 20000 })),
+      (e: unknown) => e instanceof DomainError && e.code === 'IDEMPOTENCY_KEY_REUSED' && e.httpHint === 409,
+    );
+    assert.throws(
+      () => env.svc.recordTrip({ ...trip(s.id), platform: 'taxi' }),
+      (e: unknown) => e instanceof DomainError && e.code === 'VALIDATION_FAILED' && e.httpHint === 422,
+    );
   });
 
   it('scopes idempotency keys per captain', () => {
@@ -179,13 +210,13 @@ describe('trips (DEC-02: trip by trip)', () => {
     const env = setup();
     const s = openShift(env);
     const { trip: t } = env.svc.recordTrip(trip(s.id));
-    rejects(() => env.svc.voidTrip({ ownerUserId: CAPTAIN, tripId: t.id, reason: '' }), 'VALIDATION');
+    rejects(() => env.svc.voidTrip({ ownerUserId: CAPTAIN, tripId: t.id, reason: '' }), 'VALIDATION_FAILED');
     const v = env.svc.voidTrip({ ownerUserId: CAPTAIN, tripId: t.id, reason: 'duplicate entry' });
     assert.equal(v.status, 'VOIDED');
     assert.equal(env.svc.getTrip(CAPTAIN, t.id).voidReason, 'duplicate entry');
     rejects(() => env.svc.voidTrip({ ownerUserId: CAPTAIN, tripId: t.id, reason: 'again' }), 'CONFLICT');
 
-    const { trip: t2 } = env.svc.recordTrip(trip(s.id, { key: 'k2' }));
+    const { trip: t2 } = env.svc.recordTrip(trip(s.id, { key: 'key-0000000000002' }));
     env.svc.endShift({ ownerUserId: CAPTAIN, shiftId: s.id, endOdometerKm: 1100 });
     rejects(() => env.svc.voidTrip({ ownerUserId: CAPTAIN, tripId: t2.id, reason: 'late' }), 'CONFLICT');
   });
@@ -218,7 +249,7 @@ describe('corrections (DEC-06: append-only, reason, no reopen)', () => {
     const { env, s } = closedWithTrip();
     rejects(
       () => env.svc.correct({ ownerUserId: CAPTAIN, shiftId: s.id, field: 'shift.end_odometer_km', newValue: 1120, reason: ' ' }),
-      'VALIDATION',
+      'VALIDATION_FAILED',
     );
   });
 
@@ -247,14 +278,14 @@ describe('corrections (DEC-06: append-only, reason, no reopen)', () => {
     const { env, s } = closedWithTrip();
     rejects(
       () => env.svc.correct({ ownerUserId: CAPTAIN, shiftId: s.id, field: 'shift.end_odometer_km', newValue: 999, reason: 'x' }),
-      'VALIDATION',
+      'VALIDATION_FAILED',
     );
     env.svc.correct({ ownerUserId: CAPTAIN, shiftId: s.id, field: 'shift.end_odometer_km', newValue: 1150, reason: 'read wrong' });
     assert.equal(env.svc.effectiveShift(CAPTAIN, s.id).endOdometerKm, 1150);
     assert.equal(env.svc.getShift(CAPTAIN, s.id).endOdometerKm, 1100);
     rejects(
       () => env.svc.correct({ ownerUserId: CAPTAIN, shiftId: s.id, field: 'shift.start_odometer_km', newValue: 1151, reason: 'x' }),
-      'VALIDATION',
+      'VALIDATION_FAILED',
     );
   });
 
@@ -268,7 +299,7 @@ describe('corrections (DEC-06: append-only, reason, no reopen)', () => {
     );
     rejects(
       () => env.svc.correct({ ownerUserId: CAPTAIN, shiftId: s.id, field: 'trip.status', entityId: t.id, newValue: 'RECORDED', reason: 'undo' }),
-      'VALIDATION',
+      'VALIDATION_FAILED',
     );
   });
 
@@ -277,7 +308,7 @@ describe('corrections (DEC-06: append-only, reason, no reopen)', () => {
     env.svc.correct({ ownerUserId: CAPTAIN, shiftId: s.id, field: 'shift.end_odometer_km', newValue: 1120, reason: 'fix' });
     assert.equal(env.svc.effectiveShift(CAPTAIN, s.id).status, 'CLOSED');
     rejects(() => env.svc.endShift({ ownerUserId: CAPTAIN, shiftId: s.id, endOdometerKm: 1130 }), 'CONFLICT');
-    rejects(() => env.svc.recordTrip(trip(s.id, { key: 'late' })), 'CONFLICT');
+    rejects(() => env.svc.recordTrip(trip(s.id, { key: 'key-0000000late00' })), 'CONFLICT');
   });
 
   it("rejects another captain's shift or trip", () => {

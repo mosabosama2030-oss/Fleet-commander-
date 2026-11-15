@@ -1,15 +1,16 @@
+/** أسماء الرموز مطابقة لـ components.schemas.Error.code في OPENAPI_CORE_AR.yaml (PROPOSED). */
 export type ErrorCode =
-  | 'VALIDATION'
+  | 'VALIDATION_FAILED'
   | 'CONFLICT'
   | 'NOT_FOUND'
-  | 'IDEMPOTENCY_MISMATCH';
+  | 'IDEMPOTENCY_KEY_REUSED';
 
 /** تلميح لرمز HTTP يستخدمه طبقة الواجهة لاحقًا؛ النواة نفسها لا تعرف HTTP. */
 const HTTP_HINT: Record<ErrorCode, number> = {
-  VALIDATION: 422,
+  VALIDATION_FAILED: 422,
   CONFLICT: 409,
   NOT_FOUND: 404,
-  IDEMPOTENCY_MISMATCH: 422,
+  IDEMPOTENCY_KEY_REUSED: 409, // العقد: responses.Conflict = «Conflict or idempotency mismatch»
 };
 
 export class DomainError extends Error {
@@ -25,7 +26,7 @@ export class DomainError extends Error {
 }
 
 export function validation(message: string): DomainError {
-  return new DomainError('VALIDATION', message);
+  return new DomainError('VALIDATION_FAILED', message);
 }
 export function conflict(message: string): DomainError {
   return new DomainError('CONFLICT', message);
