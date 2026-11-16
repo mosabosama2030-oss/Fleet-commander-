@@ -187,7 +187,7 @@
 ### 11.1 الخط المرجعي والفروع
 
 - **VERIFIED:** آخر commit على main ما زال `ee2a019c1eb604933d984ff9aee03c4f898fbcd6` (دمج PR #12).
-- **VERIFIED:** مقارنة `main...agent/CHATGPT-1/FC-001`: 8 commits ahead / 0 behind، والملف المتغير الوحيد هو هذا التقرير `docs/agents/BASELINE_AUDIT_AR.md` (239 إضافة في لقطة المقارنة بعد آخر تحديث للتقرير)..
+- **VERIFIED:** مقارنة `main...agent/CHATGPT-1/FC-001` قبل هذا التحديث: 10 commits ahead / 0 behind، والملف المتغير الوحيد هو هذا التقرير `docs/agents/BASELINE_AUDIT_AR.md` (239 إضافة في تلك اللقطة).
 - **VERIFIED:** مقارنة `main...docs/a0-captain-requirements` (PR #1): 18 ahead / 20 behind، merge-base `6cebb40136f11027ec7e5e3c50f62a813a03938f`.
 - **VERIFIED:** مقارنة `main...session/05-tech-auth-gps`: 23 ahead / 20 behind، merge-base نفسه. الفرع متباعد وغير مدمج؛ تبقى محتوياته مرجعًا غير معتمد حتى قرار MOSAAB.
 
@@ -200,10 +200,10 @@
 | #14 | OPEN / NOT DRAFT | تحديث AGENTS / START_HERE / GITHUB_AUTOMATION_STATUS |
 | #15 | OPEN / DRAFT | MANUS-1 — FC-007 |
 | #16 | OPEN / DRAFT | GitHub Copilot fallback؛ يتضمن تعديل فهرس المهام |
-| #18 | OPEN / DRAFT، وGitHub أعاد `mergeable=false` | CLAUDE-1 — FC-011 |
+| #18 | OPEN / DRAFT، وGitHub أعاد `mergeable=true` في آخر قراءة | CLAUDE-1 — FC-011 |
 | #19 | OPEN / DRAFT | MANUS-2 — FC-008 |
 | #20 | OPEN / NOT DRAFT | MANUS-1 — FC-004، إعادة إسناد Issue #5 بتوجيه MOSAAB |
-| #21 | OPEN / NOT DRAFT | تقرير GROK-1؛ ارتباطه بـIssue #6 مستنتج من العنوان/الفرع لا من Issue reference في جسم PR |
+| #21 | OPEN / NOT DRAFT | GROK-1 FC-005؛ تعليق Issue #6 يربطه صراحةً رغم أن خانة Issue داخل جسم PR غير مكتملة |
 | #22 | OPEN / DRAFT | CHATGPT-1 — FC-001 |
 
 هذه لقطة زمنية وليست ضمانًا لاستمرار الحالات. لا يوجد PR مدمج ضمن هذه القائمة عند الفحص.
@@ -212,15 +212,33 @@
 
 - **VERIFIED:** Issue #2 ما زالت OPEN، وبها CLAIM سابق لـCHATGPT-1 وتعليقات تسليم، وPR #22 مفتوح على الفرع المحدد.
 - **VERIFIED:** Issues #3–#11 و#17 ما زالت OPEN؛ لا توجد GitHub assignees لهذه Issues. Role IDs تظل ملكيات تشغيلية وليست حسابات GitHub.
+
+#### مصفوفة الملكية والتسليم الحالية — مدخل مقترح للفهرس
+
+| Issue | Role / المالك التشغيلي الحالي | دليل GitHub الحي | المخرج / الحالة |
+|---:|---|---|---|
+| #2 | CHATGPT-1 | CLAIM موجود؛ فرع FC-001 وPR #22 OPEN / DRAFT | تقرير baseline محدث؛ تحديث الفهرس الأساسي محجوب بتداخل PR #16 |
+| #3 | CHATGPT-2 | Issue OPEN؛ لا تعليقات أو PR ظاهر في الفحص | مراجعة مستقلة للأمان وجودة A0؛ UNCLAIMED في GitHub |
+| #4 | CLAUDE-1 | CLAIM وتسليم READY_FOR_REVIEW؛ PR #13 OPEN / NOT DRAFT | مصفوفة Backend/DB/Hosting وADR مقترح؛ تعليق Issue القديم يصف PR بأنه Draft خلاف metadata الحالية |
+| #5 | MANUS-1 | إعادة إسناد موجهة من MOSAAB مثبتة في Issue #5 وPR #20 OPEN / NOT DRAFT | مواصفة Web/PWA UX؛ يجب حسم تزامن MANUS-1 مع بقاء Issue #8/PR #15 مفتوحًا |
+| #6 | GROK-1 | CLAIM وتسليم READY_FOR_REVIEW؛ Issue #6 يربط PR #21 صراحةً؛ PR OPEN / NOT DRAFT | تقرير اتساق معماري |
+| #7 | GROK-2 | CLAIM وتسليم READY_FOR_REVIEW؛ الفرع متقدم 1 commit عن main ويضيف ملف الاختبار؛ لا PR ظاهر | Test Execution Blueprint موجود على الفرع؛ PR غير مقدم/غير ظاهر بعد |
+| #8 | MANUS-1 | CLAIM وتسليم؛ PR #15 OPEN / DRAFT | تقرير فجوات رحلة Captain؛ حالة المراجعة لا تعني إغلاق المهمة |
+| #9 | MANUS-2 | CLAIM وتسليم READY_FOR_REVIEW؛ PR #19 OPEN / DRAFT، commit واحد وملف واحد | خطة التشغيل والإصدار |
+| #10 | META-DESIGN | Issue OPEN؛ لا تعليقات أو PR ظاهر | تصميم بصري؛ لا يمكن إثبات بدء التنفيذ من GitHub |
+| #11 | MOSAAB / HUMAN ACTION | Issue OPEN وتعليقات بشرية | ربط الهويات، الحماية، واعتماد Agent Runtime |
+| #17 | CLAUDE-1 | CLAIM وتسليم READY_FOR_REVIEW؛ PR #18 OPEN / DRAFT | Backend slice 1؛ لا HTTP/DB، وDEC-03 ما زالت حاجزًا ماليًا |
+
+هذه مصفوفة حالة تشغيلية مرصودة وليست تحديثًا للفهرس الأساسي؛ لا توجد GitHub assignees مثبتة لهذه الأدوار.
 - **VERIFIED:** PR #20 يصرح بأن MANUS-1 تولى FC-004 / Issue #5 بتوجيه MOSAAB؛ لذلك لا يصح إبقاء Claude-2 مالكًا تنفيذيًا حاليًا لهذه المهمة في فهرس محدث.
 - **VERIFIED:** PR #16 ما زال OPEN / DRAFT ويغيّر `docs/agents/AGENT_TASK_INDEX_AR.md`، ولذلك ما زال تعديل الملف نفسه متداخلًا مباشرة مع FC-001.
 - **VERIFIED — تناقضات داخل مخرجات PR #16 الحالية:**
   - `TASK_EXECUTION_BOARD_AR.md` يقول إن Issue #2 بلا تعليقات أو تسليم وUNCLAIMED، بينما Issue #2 الفعلية تحتوي CLAIM وتعليقات، وPR #22 موجود. هذه معلومة غير صحيحة وقت المطابقة الحالية.
   - اللوحة تقول إن PR #15 OPEN وغير Draft، بينما PR API يعيد `draft=true`.
-  - اللوحة تقول إن Issue #6 لا يوجد له PR مفتوح، بينما PR #21 مفتوح بعنوان GROK-1 FC-005؛ صلة PR #21 بـIssue #6 ما زالت INFERRED لأن جسم PR لا يربطه صراحةً.
-  - اللوحة لا تعكس أن MANUS-1 تولى Issue #5 عبر PR #20 بتوجيه MOSAAB.
+  - اللوحة تقول إن Issue #6 لا يوجد له PR مفتوح، لكن تعليق Issue #6 نفسه يربط PR #21 صراحةً؛ هذا يجعل علاقة المهمة بالـPR VERIFIED رغم أن خانة Closes داخل جسم PR غير مكتملة.
+  - اللوحة لا تعكس أن MANUS-1 تولى Issue #5 عبر PR #20 بتوجيه MOSAAB، كما أن PR #15/Issue #8 ما زال OPEN / DRAFT؛ لذلك يظهر MANUS-1 على مسارين (#5 و#8) دون handoff صريح يثبت انتهاء تكليف #8 أو نقله.
   - `fc-agent.md` داخل PR #16 ما زال يربط Issue #5 بدور CLAUDE-2؛ وهذا لا يطابق إعادة الإسناد الموثقة في PR #20.
-  - لوحة PR #16 مؤرخة 2026-11-15، بينما المطابقة الحالية على GitHub بتاريخ 2026-11-16؛ كما أن SHA المكتوب في اللوحة لفرع PR #16 لا يطابق Head SHA الذي أعاده PR API الحالي.
+  - لوحة PR #16 تقول إن فرع MANUS-2 / FC-008 مطابق لـmain بلا commit إضافي، لكن PR #19 المفتوح يعرض commit واحدًا وتغيير ملف خطة التشغيل؛ كما أن اللوحة مؤرخة 2026-11-15 وHead SHA المكتوب فيها لفرع PR #16 لا يطابق Head SHA الذي أعاده PR API الحالي.
 - **PROPOSED:** قبل أن يصبح PR #16 جاهزًا للمراجعة، يجب تحديث Task Execution Board، ومراجعة Role Map في `fc-agent.md`، ومصالحة تغيير فهرس المهام مع مالك FC-001؛ لا تدمج هذه الحالة المتعارضة كأنها لقطة حية.
 - **UNKNOWN:** هل يريد MOSAAB الاحتفاظ بتغيير فهرس المهام داخل PR #16 أم نقل ملكية تحريره إلى FC-001. لذلك لم يتم تعديل `AGENT_TASK_INDEX_AR.md` في فرع FC-001.
 
