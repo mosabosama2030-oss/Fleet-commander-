@@ -1,38 +1,43 @@
 # لوحة تقدم مهام Fleet Commander
 
-آخر مطابقة مع GitHub: 2026-11-15 (وقت الفحص).
-المعيار: وجود Issue comment أو branch أو PR هو دليل على نشاط GitHub، لكنه لا يثبت بذاته هوية جلسة مزود خارجي.
+آخر مطابقة مع GitHub: 2026-11-16.
+المعيار: حالة GitHub الحية هي مرجع حالة PR/Issue/Branch؛ وجود دور تشغيلي لا يثبت هوية حساب مزود AI.
 
-| Issue | Role ID | ما يظهر في GitHub الآن | الحالة التشغيلية |
+| Issue | Role ID / المالك التشغيلي | الدليل الحي | الحالة التشغيلية |
 |---:|---|---|---|
-| #2 | CHATGPT-1 | لا توجد تعليقات أو تسليم على Issue | UNCLAIMED في GitHub |
-| #3 | CHATGPT-2 | لا توجد تعليقات أو تسليم على Issue | UNCLAIMED في GitHub |
-| #4 | CLAUDE-1 | Claim وتسليم READY_FOR_REVIEW؛ PR #13 مفتوح | READY_FOR_REVIEW — مراجعة بشرية |
-| #5 | CLAUDE-2 | لا توجد تعليقات أو تسليم على Issue | UNCLAIMED في GitHub |
-| #6 | GROK-1 | فرع agent/GROK-1/FC-005 وتقرير معماري؛ لا يوجد PR مفتوح لهذا الفرع | READY_FOR_REVIEW — يلزم تسليم PR/مراجعة |
-| #7 | GROK-2 | Claim وتسليم READY_FOR_REVIEW؛ فرع agent/GROK-2/FC-006 | READY_FOR_REVIEW — يلزم PR/مراجعة |
-| #8 | MANUS-1 | PR #15 مفتوح وغير Draft، ملف تقرير واحد | READY_FOR_REVIEW — مراجعة بشرية |
-| #9 | MANUS-2 | Claim موجود؛ الفرع agent/MANUS-2/FC-008 مطابق لـmain وقت الفحص، بلا commit إضافي | CLAIMED — لا يظهر تنفيذ في الفرع بعد |
-| #10 | META-DESIGN | لا توجد تعليقات أو تسليم على Issue | UNCLAIMED في GitHub؛ يتطلب Meta AI للمرئيات |
-| #11 | MOSAAB | بوابة تفعيل/تشغيل يديرها المدير البشري | HUMAN_CONTROLLED |
+| #2 | CHATGPT-1 | CLAIM وتعليقات handoff موجودة؛ PR #22 على agent/CHATGPT-1/FC-001، OPEN / DRAFT | PARTIAL — baseline محدث؛ فهرس المهام نُقل إلى FC-001 |
+| #3 | CHATGPT-2 | Issue مفتوحة؛ لا تعليقات أو PR ظاهر في المطابقة | UNCLAIMED في GitHub — انتظار مراجعة QA/Security مستقلة |
+| #4 | CLAUDE-1 | CLAIM وتسليم موجودان؛ PR #13 OPEN / NOT DRAFT | READY_FOR_REVIEW — مصفوفة Backend/DB/Hosting وADR مقترحان؛ لا قرار تقني معتمد |
+| #5 | MANUS-1 | إعادة إسناد من MOSAAB موثقة في Issue #5؛ PR #20 OPEN / NOT DRAFT | READY_FOR_REVIEW — مواصفة UX لـWeb/PWA؛ لا تنفيذ واجهة |
+| #6 | GROK-1 | CLAIM وتسليم READY_FOR_REVIEW؛ Issue #6 تربط PR #21 صراحةً؛ PR #21 OPEN / NOT DRAFT | READY_FOR_REVIEW — تقرير اتساق معماري |
+| #7 | GROK-2 | CLAIM وتسليم READY_FOR_REVIEW؛ فرع agent/GROK-2/FC-006 متقدم 1 commit عن main ويضيف docs/testing/TEST_EXECUTION_BLUEPRINT_AR.md؛ لا PR ظاهر | READY_FOR_REVIEW — خطة اختبارات؛ لا اختبارات منتج منفذة |
+| #8 | MANUS-1 (التسليم السابق) | PR #15 OPEN / DRAFT؛ تسليم Issue #8 يوجّه المراجعة التالية إلى MOSAAB | DELIVERED / AWAITING HUMAN REVIEW — لا توجد مهمة تنفيذ نشطة موازية لـ#5 |
+| #9 | MANUS-2 | CLAIM وتسليم موجودان؛ PR #19 OPEN / DRAFT، commit واحد وملف خطة تشغيل | READY_FOR_REVIEW — خطة التشغيل والإصدار |
+| #10 | META-DESIGN | Issue مفتوحة؛ لا تعليقات أو PR ظاهر في المطابقة | UNCLAIMED في GitHub — يتطلب مخرجًا بصريًا من Meta AI |
+| #11 | MOSAAB / HUMAN ACTION | Issue مفتوحة وتعليقات بشرية | HUMAN_CONTROLLED — ربط الهويات، الحماية، وتشغيل Agent Runtime |
+| #17 | CLAUDE-1 | CLAIM وتسليم READY_FOR_REVIEW؛ PR #18 OPEN / DRAFT | READY_FOR_REVIEW — Backend slice 1؛ لا HTTP أو PostgreSQL، وDEC-03 تمنع اعتماد المحرك المالي |
 
-## ملاحظات أدلة وتعارضات
+## فصل التسليم عن الملكية النشطة
 
-- PR #15: الحالة الفعلية من Pull Request API هي OPEN وdraft=false. نص إحدى تعليقات Issue #8 القديمة يقول Draft؛ نعتمد metadata الحالية للـPR، ونحتفظ بالتعارض كسجل تاريخي.
-- Issue #8 comment يسجل HEAD SHA أقدم af904ce...، بينما PR #15 الحالي على 199972fe...؛ التعليق اللاحق على PR يطابق SHA الحالي، لذا التعليق القديم سابق لتحديث الفرع.
-- Issue #6 تقرير Grok-1 على فرع لكن لا يوجد PR ظاهر؛ لا نعد المهمة مدمجة أو معتمدة.
-- Issue #9 يحتوي Claim من Manus-2، لكن فرعه لم يتقدم عن main وقت الفحص. لا نعيد تكليفه تلقائيًا منعًا لتضارب العمل.
-- عدم وجود تعليق على Issue لا ينفي احتمال وجود جلسة خارج GitHub؛ تعني فقط أنه لا يوجد سجل GitHub يمكن التحقق منه حتى الآن.
+- MANUS-1 أُعيد توجيهه من MOSAAB إلى Issue #5. مخرج Issue #8 موجود بالفعل في PR #15 Draft، وتعليق Issue #8 يطلب مراجعة Human Director؛ لذلك يُسجل #8 كتسليم سابق ينتظر المراجعة، وليس كعمل تنفيذ نشط متزامن مع #5.
+- Role IDs هويات تشغيلية وليست GitHub usernames. لا GitHub assignees مؤكدة لهذه الأدوار، ولا يجوز اختراع @mentions أو صلاحيات.
+- Issue #6 مرتبطة بـPR #21 من تعليق Issue #6، مع بقاء خانة Closes في جسم PR غير مكتملة.
+- Issue #7 لديها branch ومخرج، لكن لم يظهر PR مقدم في المطابقة الحالية.
+- PR #1 مفتوح وغير Draft حاليًا، رغم أن النص السابق يطلب إبقاءه OPEN/DRAFT؛ لم يتم تعديل حالته.
 
-## سياسة تشغيل Copilot Free
+## منفذ GitHub Copilot الاحتياطي — PR #16
 
-يمكن استخدام الأمر /fc-run كمنفذ احتياطي لمهام #2–#9 التي لا يوجد لها Claim أو فرع عامل أو PR. لا يستخدم على مهمة عليها Claim نشط. هذا منفذ Copilot واحد وليس حسابات مزودي Role IDs المذكورين. Issue #10 يبقى Meta AI.
+- PR #16 ما زال OPEN / DRAFT، ويحافظ على ملفات workflow وCopilot runner.
+- تم تحرير docs/agents/AGENT_TASK_INDEX_AR.md من PR #16 وإعادته إلى محتوى main؛ أصبح تحديث الفهرس من مسؤولية CHATGPT-1 في FC-001.
+- تغييرات التحقق السابقة: Run 43675869609 وRun 43675985729 مسجلان SUCCESS لتثبيت gh-aw strict compile وفحص lock في نسخ سابقة من الفرع.
+- Run 43675705652 فشل في طريقة تثبيت سابقة وتم استبدالها.
+- end-to-end /fc-run غير مثبت؛ لا تُعامل نجاحات compile على أنها تشغيل وكيل أو إنشاء PR ناجح.
+- قبل اعتماد PR #16، يجب إعادة تشغيل compile/validation على أحدث source وlock بعد التعديلات الحالية. لا توجد موافقة دمج هنا.
 
+## قواعد التقدم
 
-## بنية التنفيذ المجاني — PR #16 (VERIFIED)
-- PR #16 مفتوح Draft وغير مدمج: https://github.com/mosabosama2030-oss/Fleet-commander-/pull/16
-- Head SHA الحالي بعد إصلاح installer وإضافة copilot-requests: none: `ff7840fa7ebd06cdb32e700e49195d0c2c50aadb`.
-- Actions Run `43675869609`: SUCCESS — تثبيت gh-aw v1.2.2 مع checksum، strict compile، وفحص lock output.
-- Actions Run `43675985729`: SUCCESS بعد آخر تعديل للـfrontmatter. يوجد تحذير أن user-rate-limit experimental.
-- Run `43675705652` فشل أثناء محاولة تثبيت gh-aw بصيغة gh extension، وتم تصحيح ذلك باستخدام standalone installer pinned/checksum-verified.
-- `COPILOT_GITHUB_TOKEN` غير مضاف؛ اختبار /fc-run وDraft PR الفعلي لم يُنفذ بعد.
+- لا تعلن DONE بسبب وجود وثيقة أو PR فقط.
+- فرّق بين READY_FOR_REVIEW وFIXED_AND_TESTED؛ لا تعني الأولى نجاح اختبارات المنتج.
+- لا تعتبر branch أو PR غير مدمج قرارًا معتمدًا على main.
+- لا يبدأ التنفيذ المالي قبل حسم DEC-03/05/09 وموافقة MOSAAB.
+- MOSAAB وحده يعتمد قرارات المنتج والانتقال بين البوابات والدمج والنشر.
