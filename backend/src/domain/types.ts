@@ -37,6 +37,19 @@ export interface Trip {
   readonly voidReason: string | null;
 }
 
+/** O-08: شكل الصفحة مطابق لـ components.schemas.Page (next_cursor → nextCursor في النواة). */
+export interface Page<T> {
+  readonly items: readonly T[];
+  readonly nextCursor: string | null;
+}
+
+export interface ListOptions {
+  /** معتم: يُمرَّر كما أُعيد في nextCursor. */
+  readonly cursor?: string;
+  /** 1..100، الافتراضي 25 (OpenAPI parameters.Limit). */
+  readonly limit?: number;
+}
+
 export type CorrectableField =
   | 'trip.fare_minor'
   | 'trip.status'

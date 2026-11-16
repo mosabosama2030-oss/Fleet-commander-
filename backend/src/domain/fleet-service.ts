@@ -7,11 +7,27 @@ import type {
   AuditEvent,
   CorrectableField,
   Correction,
+  ListOptions,
+  Page,
   Platform,
   Shift,
   Trip,
   Vehicle,
 } from './types.ts';
+
+const DEFAULT_LIMIT = 25; // OpenAPI parameters.Limit default
+const MAX_LIMIT = 100; // OpenAPI parameters.Limit maximum
+
+/** بصمة الحمولة: قيم بدائية فقط حتى لا يفشل JSON.stringify بخطأ غير نطاقي. */
+function fingerprint(parts: readonly unknown[]): string {
+  return JSON.stringify(
+    parts.map((p) => {
+      if (p === undefined || p === null) return null;
+      if (typeof p === 'string' || typeof p === 'number' || typeof p === 'boolean') return p;
+      throw validation('payload contains an unsupported value');
+    }),
+  );
+}
 
 function text(value: unknown, field: string, max = 500): string {
   if (typeof value !== 'string' || value.trim() === '') {
@@ -53,6 +69,8 @@ export interface CorrectionInput {
   readonly entityId?: string;
   readonly newValue: string | number;
   readonly reason: string;
+  /** O-02: مطلوب في العقد على POST /shifts/{id}/corrections؛ فرضه على الواجهة (HTTP) لاحقًا. */
+  readonly idempotencyKey?: string;
 }
 
 /**
@@ -69,11 +87,47 @@ export class FleetService {
   readonly #trips = new Map<string, Trip>();
   readonly #corrections: Correction[] = [];
   readonly #audit: AuditEvent[] = [];
-  readonly #idempotency = new Map<string, { fingerprint: string; tripId: string }>();
+  /** O-02: مخزن موحد لكل العمليات؛ المفتاح مقيّد بالكابتن، والبصمة تشمل اسم العملية فيُرفض إعادة استخدامه عبر عمليات مختلفة. */
+  readonly #idempotency = new Map<string, { fingerprint: string; result: unknown }>();
 
   constructor(deps: FleetDeps) {
     this.#clock = deps.clock;
     this.#ids = deps.ids;
+  }
+
+  #idempotencyKey(raw: unknown): string {
+    const key = text(raw, 'idempotencyKey', 128);
+    if (key.length < 16) throw validation('idempotencyKey must be 16-128 characters'); // OpenAPI IdempotencyKey
+    return key;
+  }
+
+  /**
+   * ينفّذ `exec` مرة واحدة لكل (كابتن، مفتاح). نفس المفتاح + نفس الحمولة ⇒ يعيد النتيجة المخزنة دون تنفيذ
+   * ولا سجل تدقيق جديد؛ نفس المفتاح + حمولة/عملية مختلفة ⇒ IDEMPOTENCY_KEY_REUSED.
+   * تُخزَّن النجاحات فقط (الفشل لا يستهلك المفتاح). البحث يسبق فحوص الحالة حتى تنجح إعادة المحاولة بعد تغيّر الحالة.
+   * `rawKey === undefined` ⇒ بلا حماية (فرض وجود الترويسة مسؤولية طبقة HTTP — O-10).
+   */
+  #idempotent<T>(
+    owner: string,
+    rawKey: string | undefined,
+    parts: readonly unknown[],
+    exec: () => T,
+    replay: (stored: T) => T = (stored) => stored,
+  ): T {
+    if (rawKey === undefined) return exec();
+    const key = this.#idempotencyKey(rawKey);
+    const fp = fingerprint(parts);
+    const scopedKey = `${owner}\u0000${key}`;
+    const prior = this.#idempotency.get(scopedKey);
+    if (prior) {
+      if (prior.fingerprint !== fp) {
+        throw new DomainError('IDEMPOTENCY_KEY_REUSED', 'idempotency key reused with a different payload');
+      }
+      return replay(prior.result as T); // T-IDEM-01
+    }
+    const result = exec();
+    this.#idempotency.set(scopedKey, { fingerprint: fp, result });
+    return result;
   }
 
   #log(
@@ -108,7 +162,13 @@ export class FleetService {
     return t;
   }
 
-  registerVehicle(ownerUserId: string, label: string): Vehicle {
+  registerVehicle(ownerUserId: string, label: string, idempotencyKey?: string): Vehicle {
+    return this.#idempotent(ownerUserId, idempotencyKey, ['vehicle.register', label], () =>
+      this.#registerVehicle(ownerUserId, label),
+    );
+  }
+
+  #registerVehicle(ownerUserId: string, label: string): Vehicle {
     const clean = text(label, 'label', 60); // OpenAPI VehicleCreate.label maxLength 60
     for (const v of this.#vehicles.values()) {
       if (v.ownerUserId === ownerUserId && v.status === 'active') {
@@ -150,7 +210,17 @@ export class FleetService {
     ownerUserId: string;
     vehicleId: string;
     startOdometerKm: number;
+    idempotencyKey?: string;
   }): Shift {
+    return this.#idempotent(
+      input.ownerUserId,
+      input.idempotencyKey,
+      ['shift.start', input.vehicleId, input.startOdometerKm],
+      () => this.#startShift(input),
+    );
+  }
+
+  #startShift(input: { ownerUserId: string; vehicleId: string; startOdometerKm: number }): Shift {
     const km = odometer(input.startOdometerKm, 'startOdometerKm');
     const vehicle = this.#vehicles.get(input.vehicleId);
     if (!vehicle || vehicle.ownerUserId !== input.ownerUserId) throw notFound('vehicle not found');
@@ -178,7 +248,21 @@ export class FleetService {
     return shift;
   }
 
-  endShift(input: { ownerUserId: string; shiftId: string; endOdometerKm: number }): Shift {
+  endShift(input: {
+    ownerUserId: string;
+    shiftId: string;
+    endOdometerKm: number;
+    idempotencyKey?: string;
+  }): Shift {
+    return this.#idempotent(
+      input.ownerUserId,
+      input.idempotencyKey,
+      ['shift.end', input.shiftId, input.endOdometerKm],
+      () => this.#endShift(input),
+    );
+  }
+
+  #endShift(input: { ownerUserId: string; shiftId: string; endOdometerKm: number }): Shift {
     const km = odometer(input.endOdometerKm, 'endOdometerKm');
     const s = this.#ownedShift(input.ownerUserId, input.shiftId);
     if (s.status !== 'OPEN') throw conflict(`shift is ${s.status}, cannot end`); // T-SH-03
@@ -194,7 +278,21 @@ export class FleetService {
     return ended;
   }
 
-  cancelShift(input: { ownerUserId: string; shiftId: string; reason: string }): Shift {
+  cancelShift(input: {
+    ownerUserId: string;
+    shiftId: string;
+    reason: string;
+    idempotencyKey?: string;
+  }): Shift {
+    return this.#idempotent(
+      input.ownerUserId,
+      input.idempotencyKey,
+      ['shift.cancel', input.shiftId, input.reason],
+      () => this.#cancelShift(input),
+    );
+  }
+
+  #cancelShift(input: { ownerUserId: string; shiftId: string; reason: string }): Shift {
     const reason = text(input.reason, 'reason');
     const s = this.#ownedShift(input.ownerUserId, input.shiftId);
     if (s.status !== 'OPEN') throw conflict(`shift is ${s.status}, cannot cancel`);
@@ -205,45 +303,56 @@ export class FleetService {
   }
 
   recordTrip(input: RecordTripInput): { trip: Trip; replayed: boolean } {
-    const key = text(input.idempotencyKey, 'idempotencyKey', 128);
-    if (key.length < 16) throw validation('idempotencyKey must be 16-128 characters'); // OpenAPI IdempotencyKey
+    const key = this.#idempotencyKey(input.idempotencyKey); // يحفظ ترتيب الأخطاء: المفتاح أولًا
     if (!(PLATFORMS as readonly string[]).includes(input.platform)) {
       throw validation(`platform must be one of: ${PLATFORMS.join(', ')}`);
     }
     const platform = input.platform as Platform;
     const fare = money(input.fareMinor, 'fareMinor');
     const occurredAt = parseIsoUtc(input.occurredAt, 'occurredAt').toISOString();
-    const fingerprint = JSON.stringify([input.shiftId, platform, occurredAt, fare.amountMinor]);
-    const scopedKey = `${input.ownerUserId}\u0000${key}`;
 
-    const prior = this.#idempotency.get(scopedKey);
-    if (prior) {
-      if (prior.fingerprint !== fingerprint) {
-        throw new DomainError('IDEMPOTENCY_KEY_REUSED', 'idempotency key reused with a different payload');
-      }
-      return { trip: this.#ownedTrip(input.ownerUserId, prior.tripId), replayed: true }; // T-IDEM-01
-    }
+    return this.#idempotent<{ trip: Trip; replayed: boolean }>(
+      input.ownerUserId,
+      key,
+      ['trip.record', input.shiftId, platform, occurredAt, fare.amountMinor],
+      () => {
+        const shift = this.#ownedShift(input.ownerUserId, input.shiftId);
+        if (shift.status !== 'OPEN') throw conflict('trips can only be recorded while the shift is OPEN');
 
-    const shift = this.#ownedShift(input.ownerUserId, input.shiftId);
-    if (shift.status !== 'OPEN') throw conflict('trips can only be recorded while the shift is OPEN');
-
-    const trip: Trip = Object.freeze({
-      id: this.#ids.next(),
-      ownerUserId: input.ownerUserId,
-      shiftId: shift.id,
-      platform,
-      occurredAt,
-      fare,
-      status: 'RECORDED' as const,
-      voidReason: null,
-    });
-    this.#trips.set(trip.id, trip);
-    this.#idempotency.set(scopedKey, { fingerprint, tripId: trip.id });
-    this.#log(input.ownerUserId, 'trip.record', 'trip', trip.id);
-    return { trip, replayed: false };
+        const trip: Trip = Object.freeze({
+          id: this.#ids.next(),
+          ownerUserId: input.ownerUserId,
+          shiftId: shift.id,
+          platform,
+          occurredAt,
+          fare,
+          status: 'RECORDED' as const,
+          voidReason: null,
+        });
+        this.#trips.set(trip.id, trip);
+        this.#log(input.ownerUserId, 'trip.record', 'trip', trip.id);
+        return { trip, replayed: false };
+      },
+      // السلوك السابق محفوظ: إعادة المحاولة تُرجع الحالة الحالية للرحلة (لا لقطة الاستجابة الأولى).
+      (stored) => ({ trip: this.#ownedTrip(input.ownerUserId, stored.trip.id), replayed: true }),
+    );
   }
 
-  voidTrip(input: { ownerUserId: string; tripId: string; reason: string }): Trip {
+  voidTrip(input: {
+    ownerUserId: string;
+    tripId: string;
+    reason: string;
+    idempotencyKey?: string;
+  }): Trip {
+    return this.#idempotent(
+      input.ownerUserId,
+      input.idempotencyKey,
+      ['trip.void', input.tripId, input.reason],
+      () => this.#voidTrip(input),
+    );
+  }
+
+  #voidTrip(input: { ownerUserId: string; tripId: string; reason: string }): Trip {
     const reason = text(input.reason, 'reason');
     const t = this.#ownedTrip(input.ownerUserId, input.tripId);
     const shift = this.#ownedShift(input.ownerUserId, t.shiftId);
@@ -259,6 +368,15 @@ export class FleetService {
 
   /** DEC-06: تصحيح بعد الإغلاق فقط، بسبب إلزامي، يُضاف ولا يُعدَّل؛ الأصل يبقى كما هو. */
   correct(input: CorrectionInput): Correction {
+    return this.#idempotent(
+      input.ownerUserId,
+      input.idempotencyKey,
+      ['correction.append', input.shiftId, input.field, input.entityId, input.newValue, input.reason],
+      () => this.#correct(input),
+    );
+  }
+
+  #correct(input: CorrectionInput): Correction {
     const reason = text(input.reason, 'reason');
     const shift = this.#ownedShift(input.ownerUserId, input.shiftId);
     if (shift.status !== 'CLOSED') throw conflict('corrections apply to CLOSED shifts only');
@@ -348,6 +466,60 @@ export class FleetService {
       if (c.field === 'trip.status') status = 'VOIDED';
     }
     return Object.freeze({ ...base, fare, status });
+  }
+
+  /**
+   * O-08: صفحة بترقيم cursor معتم. الترتيب = ترتيب الإنشاء تصاعديًا (UNKNOWN في العقد؛ قرار لاحق).
+   * المؤشر يحمل معرّف آخر عنصر؛ أي مؤشر تالف أو لا يخص قائمة الكابتن ⇒ VALIDATION_FAILED بلا تمييز بين الحالتين.
+   */
+  #page<T extends { readonly id: string }>(all: readonly T[], opts: ListOptions | undefined): Page<T> {
+    const limit = opts?.limit ?? DEFAULT_LIMIT;
+    if (!Number.isSafeInteger(limit) || limit < 1 || limit > MAX_LIMIT) {
+      throw validation(`limit must be an integer between 1 and ${MAX_LIMIT}`);
+    }
+    let start = 0;
+    if (opts?.cursor !== undefined) {
+      let afterId: unknown;
+      try {
+        const decoded: unknown = JSON.parse(Buffer.from(String(opts.cursor), 'base64url').toString('utf8'));
+        afterId = (decoded as { v?: unknown; after?: unknown } | null)?.v === 1
+          ? (decoded as { after?: unknown }).after
+          : undefined;
+      } catch {
+        afterId = undefined;
+      }
+      const idx = typeof afterId === 'string' ? all.findIndex((x) => x.id === afterId) : -1;
+      if (idx < 0) throw validation('invalid cursor');
+      start = idx + 1;
+    }
+    const items = all.slice(start, start + limit);
+    const last = items.at(-1);
+    const hasMore = start + limit < all.length;
+    const nextCursor =
+      hasMore && last ? Buffer.from(JSON.stringify({ v: 1, after: last.id })).toString('base64url') : null;
+    return Object.freeze({ items: Object.freeze(items), nextCursor });
+  }
+
+  listVehicles(ownerUserId: string, opts?: ListOptions): Page<Vehicle> {
+    const all = [...this.#vehicles.values()].filter((v) => v.ownerUserId === ownerUserId);
+    return this.#page(all, opts);
+  }
+
+  /** القيم الفعّالة (الأصل + التصحيحات) — INFERRED: واجهة الكابتن تحتاج القيمة المصحّحة؛ الأصل عبر getShift. */
+  listShifts(ownerUserId: string, opts?: ListOptions): Page<Shift> {
+    const all = [...this.#shifts.values()]
+      .filter((s) => s.ownerUserId === ownerUserId)
+      .map((s) => this.effectiveShift(ownerUserId, s.id));
+    return this.#page(all, opts);
+  }
+
+  /** رحلات شيفت واحد بقيمها الفعّالة، تشمل VOIDED (التاريخ لا يُخفى). شيفت غير موجود/غير مملوك ⇒ NOT_FOUND. */
+  listTrips(ownerUserId: string, shiftId: string, opts?: ListOptions): Page<Trip> {
+    this.#ownedShift(ownerUserId, shiftId);
+    const all = [...this.#trips.values()]
+      .filter((t) => t.ownerUserId === ownerUserId && t.shiftId === shiftId)
+      .map((t) => this.effectiveTrip(ownerUserId, t.id));
+    return this.#page(all, opts);
   }
 
   /** الأصل بلا تصحيحات (للتدقيق). */

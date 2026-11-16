@@ -7,10 +7,10 @@
 `src/domain/` بلا اعتمادات تشغيل:
 - `money.ts`: أعداد صحيحة بالقرش، ترفض الكسور والسالب والنصوص (ADR-004 **PROPOSED**، DEC-09 غير محسوم).
 - `time.ts`: يوم الشيفت بتوقيت Africa/Cairo (DEC-04).
-- `fleet-service.ts`: مركبة نشطة واحدة مع إمكان الاستبدال بسحب القديمة (DEC-01 + O-01)، شيفت OPEN→CLOSED/CANCELLED، رحلات برحلة (DEC-02) مع إبطال بسبب، تصحيح append-only بعد الإغلاق بلا إعادة فتح (DEC-06)، Idempotency لكل كابتن، سجل تدقيق، عزل الملكية (404 للبيانات الأخرى).
+- `fleet-service.ts`: مركبة نشطة واحدة مع إمكان الاستبدال بسحب القديمة (DEC-01 + O-01)، شيفت OPEN→CLOSED/CANCELLED، رحلات برحلة (DEC-02) مع إبطال بسبب، تصحيح append-only بعد الإغلاق بلا إعادة فتح (DEC-06)، Idempotency موحد لكل العمليات المغيِّرة (لكل كابتن، O-02)، قوائم بترقيم cursor (O-08)، سجل تدقيق، عزل الملكية (404 للبيانات الأخرى).
 
 ## مطابقة العقد (الزيادة 1b)
-رموز الأخطاء وتلميحات HTTP وحدود الأطوال (Idempotency-Key 16..128، اسم المركبة 60) مطابقة لـ`OPENAPI_CORE_AR.yaml` (PROPOSED، فرع session/05 غير المدمج). O-01 (استبدال المركبة) وO-03 (مسار الإلغاء) حُسما بقرار MOSAAB 2026-11-16 — انظر [`CONTRACT_DELTA_O01_O03_AR.md`](./CONTRACT_DELTA_O01_O03_AR.md). الفروق المفتوحة (Idempotency لبقية العمليات، نمذجة العداد، …) مفصّلة في [`CONTRACT_RECONCILIATION_AR.md`](./CONTRACT_RECONCILIATION_AR.md) ولم تُعالج لأنها تحتاج قرارًا أو تغيير عقد.
+رموز الأخطاء وتلميحات HTTP وحدود الأطوال (Idempotency-Key 16..128، اسم المركبة 60) مطابقة لـ`OPENAPI_CORE_AR.yaml` (PROPOSED، فرع session/05 غير المدمج). O-01 (استبدال المركبة) وO-03 (مسار الإلغاء) حُسما بقرار MOSAAB 2026-11-16 — انظر [`CONTRACT_DELTA_O01_O03_AR.md`](./CONTRACT_DELTA_O01_O03_AR.md). الفروق المفتوحة (نمذجة العداد، فروق O-04..O-10، …) مفصّلة في [`CONTRACT_RECONCILIATION_AR.md`](./CONTRACT_RECONCILIATION_AR.md) ولم تُعالج لأنها تحتاج قرارًا أو تغيير عقد.
 
 ## ما غير موجود (NOT_RUN / BLOCKED)
 - **المحرك المالي**: محجوب بـDEC-03 (مثالا شيفت). لا معادلات هنا.
@@ -28,5 +28,5 @@ npm run typecheck # يتطلب typescript و@types/node
 ## قرارات تصميم (INFERRED/PROPOSED)
 - لا قيود على `occurredAt` سوى صيغة ISO-UTC (لا نطاق زمني): فجوة تحتاج قرارًا.
 - رفض بدء شيفت ثانٍ والأول OPEN: قاعدة PROPOSED في STATE_MACHINES (الفرع session/05 غير المدمج).
-- مفتاح الـIdempotency مقيّد بالكابتن؛ إعادة نفس المفتاح بحمولة مختلفة ⇒ `IDEMPOTENCY_MISMATCH` (422).
+- مفتاح الـIdempotency مقيّد بالكابتن؛ إعادة نفس المفتاح بحمولة أو عملية مختلفة ⇒ `IDEMPOTENCY_KEY_REUSED` (تلميح 409).
 - `httpHint` في الأخطاء تلميح فقط؛ تعيين HTTP الفعلي في طبقة API لاحقًا ولا يغيّر عقد OpenAPI.
