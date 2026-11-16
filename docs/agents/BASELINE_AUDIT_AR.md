@@ -198,7 +198,7 @@
 | #13 | OPEN / NOT DRAFT | CLAUDE-1 — FC-003 |
 | #14 | OPEN / NOT DRAFT | تحديث AGENTS / START_HERE / GITHUB_AUTOMATION_STATUS |
 | #15 | OPEN / DRAFT | MANUS-1 — FC-007 |
-| #16 | OPEN / DRAFT | GitHub Copilot fallback؛ يتضمن تعديل فهرس المهام |
+| #16 | OPEN / DRAFT | GitHub Copilot fallback؛ تم تحرير مسار الفهرس منه، وبقيت ملفات workflow واللوحة ورسائل التشغيل والدليل |
 | #18 | OPEN / DRAFT، وGitHub أعاد `mergeable=true` في آخر قراءة | CLAUDE-1 — FC-011 |
 | #19 | OPEN / DRAFT | MANUS-2 — FC-008 |
 | #20 | OPEN / NOT DRAFT | MANUS-1 — FC-004، إعادة إسناد Issue #5 بتوجيه MOSAAB |
@@ -241,7 +241,7 @@
 ### 11.6 بوابات PR #22 والاختبارات
 
 - **VERIFIED:** PR #22 OPEN / DRAFT، والـBase هو main عند SHA `ee2a019c1eb604933d984ff9aee03c4f898fbcd6`.
-- **VERIFIED:** مقارنة GitHub للفرع الحالي تُظهر 13 commits ahead / 0 behind، ومسارين فقط: `docs/agents/BASELINE_AUDIT_AR.md` و`docs/agents/AGENT_TASK_INDEX_AR.md`.
+- **VERIFIED:** مقارنة GitHub للفرع الحالي تُظهر 14 commits ahead / 0 behind عند تلك المطابقة؛ تُقرأ المقارنة الحية من PR #22 لأي تحديث لاحق، ومسارين فقط: `docs/agents/BASELINE_AUDIT_AR.md` و`docs/agents/AGENT_TASK_INDEX_AR.md`.
 - **VERIFIED:** PR #22 يحتوي 327 إضافة و33 حذفًا وفق metadata الأخيرة، والـmergeable الحالي true؛ هذا لا يتجاوز بوابة المراجعة البشرية.
 - **VERIFIED:** لا توجد Review Submissions أو Inline Review Threads على PR #22 عند آخر فحص.
 - **NOT_RUN:** Workflow Runs وCommit Statuses للرأس الحالي لـPR #22 أعادا مجموعتين فارغتين؛ لا نسجلها PASS.
