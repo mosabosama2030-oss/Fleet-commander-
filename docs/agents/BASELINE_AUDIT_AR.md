@@ -187,7 +187,7 @@
 ### 11.1 الخط المرجعي والفروع
 
 - **VERIFIED:** آخر commit على main ما زال `ee2a019c1eb604933d984ff9aee03c4f898fbcd6` (دمج PR #12).
-- **VERIFIED:** مقارنة `main...agent/CHATGPT-1/FC-001`: 8 commits ahead / 0 behind، والملف المتغير الوحيد هو هذا التقرير `docs/agents/BASELINE_AUDIT_AR.md` (181 إضافة في لقطة المقارنة).
+- **VERIFIED:** مقارنة `main...agent/CHATGPT-1/FC-001`: 8 commits ahead / 0 behind، والملف المتغير الوحيد هو هذا التقرير `docs/agents/BASELINE_AUDIT_AR.md` (239 إضافة في لقطة المقارنة بعد آخر تحديث للتقرير)..
 - **VERIFIED:** مقارنة `main...docs/a0-captain-requirements` (PR #1): 18 ahead / 20 behind، merge-base `6cebb40136f11027ec7e5e3c50f62a813a03938f`.
 - **VERIFIED:** مقارنة `main...session/05-tech-auth-gps`: 23 ahead / 20 behind، merge-base نفسه. الفرع متباعد وغير مدمج؛ تبقى محتوياته مرجعًا غير معتمد حتى قرار MOSAAB.
 
@@ -226,7 +226,7 @@
 
 ### 11.4 بوابات PR #22
 
-- **VERIFIED:** Head SHA الحالي: `64bbd51823eb61c7af90f59d362f90eed631923c`; PR #22 OPEN / DRAFT.
+- **VERIFIED:** PR #22 OPEN / DRAFT؛ يُستخدم Head SHA من بيانات PR الحية وتعليق HANDOFF الحالي، ولا يُثبت SHA ذاتي داخل التقرير حتى لا يصبح قديمًا فور إنشاء commit جديد.
 - **VERIFIED:** لا توجد Review Submissions أو Inline Review Threads على PR #22 عند إعادة الفحص.
 - **NOT_RUN:** GitHub Workflow Runs وCommit Statuses أعادا مجموعتين فارغتين لهذا الـHead؛ لا نسجلها PASS.
 - **NOT_REQUIRED:** اختبارات المنتج والبناء غير لازمة لتغيير وثائقي فقط.
