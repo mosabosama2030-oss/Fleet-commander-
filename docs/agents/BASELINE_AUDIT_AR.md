@@ -241,7 +241,7 @@
 ### 11.6 بوابات PR #22 والاختبارات
 
 - **VERIFIED:** PR #22 OPEN / DRAFT، والـBase هو main عند SHA `ee2a019c1eb604933d984ff9aee03c4f898fbcd6`.
-- **VERIFIED:** مقارنة GitHub للفرع الحالي تُظهر 14 commits ahead / 0 behind عند تلك المطابقة؛ تُقرأ المقارنة الحية من PR #22 لأي تحديث لاحق، ومسارين فقط: `docs/agents/BASELINE_AUDIT_AR.md` و`docs/agents/AGENT_TASK_INDEX_AR.md`.
+- **VERIFIED:** مقارنة GitHub للفرع الحالي تُظهر أن الفرع متقدم على main دون commits خلفية، ومسارين فقط: `docs/agents/BASELINE_AUDIT_AR.md` و`docs/agents/AGENT_TASK_INDEX_AR.md`. يعتمد العدد الدقيق للـahead على المقارنة الحية في PR #22 لتجنب رقم ذاتي متقادم.
 - **VERIFIED:** PR #22 يحتوي 327 إضافة و33 حذفًا وفق metadata الأخيرة، والـmergeable الحالي true؛ هذا لا يتجاوز بوابة المراجعة البشرية.
 - **VERIFIED:** لا توجد Review Submissions أو Inline Review Threads على PR #22 عند آخر فحص.
 - **NOT_RUN:** Workflow Runs وCommit Statuses للرأس الحالي لـPR #22 أعادا مجموعتين فارغتين؛ لا نسجلها PASS.
