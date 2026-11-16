@@ -30,7 +30,7 @@
 | ملكية المهام | Issue المخصص + PR/branch الفعلي + تعليمات الفريق | Role ID هوية تشغيلية، وليس GitHub username |
 | قرارات المنتج | قرارات Human Director الموثقة في السجل | لا يعتمد أي اقتراح غير مدمج تلقائيًا |
 | تفاصيل الجلسة 05 | `session/05-tech-auth-gps` | مصدر غير مدمج؛ مرجع للتحليل وليس مصدرًا معتمدًا على main |
-| حماية main | الوثائق المتاحة متعارضة ولا توجد هنا قراءة مباشرة لإعداد الحماية | UNKNOWN؛ يلزم تحقق إداري حي |
+| حماية main | GitHub branch metadata على main (protected=true, protection.enabled=true) + قواعد Rulesets | VERIFIED أن الحماية الكلاسيكية مفعلة؛ Rulesets فارغة. تفاصيل متطلبات المراجعة قُيدت بما أعاده GitHub فعليًا |
 
 الأولوية عند التعارض: قرار MOSAAB الصريح، ثم حالة GitHub الحية للدمج/الـPR/الـIssue، ثم الملفات المدمجة على main، ثم محتوى PRs والفروع غير المدمجة مع وسمه بأنه غير معتمد.
 
@@ -119,20 +119,22 @@
 | #14 | OPEN / NOT DRAFT (وقت إعادة الفحص 2026-11-16) | تصحيح حالة تفعيل الوكلاء وروابط الدخول | `START_HERE_AR.md`؛ لذلك لم أعدله |
 | #15 | OPEN / DRAFT | MANUS-1 FC-007 | لا |
 | #16 | OPEN / DRAFT | GitHub free agent runner وتحديث task index | `docs/agents/AGENT_TASK_INDEX_AR.md`؛ تعارض مباشر يمنع تعديله بالتوازي |
-| #18 | OPEN / NOT DRAFT | CLAUDE-1 FC-011 | لا |
+| #18 | OPEN / DRAFT (mergeable=false عند الفحص) | CLAUDE-1 FC-011 | لا |
 | #19 | OPEN / DRAFT | MANUS-2 FC-008 | لا |
 | #20 | OPEN / NOT DRAFT | MANUS-1 FC-004، refs #5 | لا |
 | #21 | OPEN / NOT DRAFT | GROK-1 FC-005 architecture review | لا |
 
 ملاحظة: تم فحص PRs المفتوحة الظاهرة من GitHub Search وبيانات PR metadata. قد تتغير القائمة بعد وقت الفحص؛ لا تمثل ضمانًا مستقبليًا.
 
-## 6. تعارض حالة حماية main
+## 6. حالة حماية main — إعادة تحقق حية
 
-- `AGENTS.md` و`TEAM_OPERATING_MODEL_AR.md` على main يذكران أن الحماية غير مفعلة وقت إعداد الوثائق.
-- وصف PR #14 المفتوح Draft يقول إن فحصه وجد `main.protected=true` مع عدم وجود Repository Rulesets.
-- **VERIFIED — محاولة الدمج بتاريخ 2026-11-16:** بعد تحويل PR #22 إلى Ready، رفض GitHub طلب الدمج برمز HTTP 405 بالنص: `At least 1 approving review is required by reviewers with write access. Cannot change this locked branch`. هذا يثبت وجود بوابة موافقة فعلية على `main` وقت المحاولة.
-- **UNKNOWN:** لم نتحقق مباشرة من مصدر القاعدة (Branch Protection أم Ruleset) ولا من بقية إعداداتها؛ لذلك يظل التفصيل الإداري الكامل غير معلوم.
-- النتيجة: لا نصف `main` بأنه غير محمي. متطلب موافقة واحدة من مراجع لديه صلاحية كتابة **VERIFIED عمليًا** من استجابة GitHub، وتفاصيل الإعداد الداخلية UNKNOWN.
+- **VERIFIED — GitHub Branch API (GET /branches/main):** `protected=true` و`protection.enabled=true`.
+- **VERIFIED — Repository Rulesets API:** أعاد `[]`؛ لا توجد Repository Rulesets مرئية لهذا المستودع عند الفحص. هذا لا ينفي وجود Branch Protection كلاسيكية.
+- **VERIFIED — Branch metadata:** `required_status_checks.contexts=[]` و`checks=[]`؛ لا توجد أسماء Required Status Checks مسجلة في metadata المعادة.
+- **VERIFIED — محاولة دمج PR #22 بتاريخ 2026-11-16:** رفض GitHub الدمج بـHTTP 405 والنص `At least 1 approving review is required by reviewers with write access. Cannot change this locked branch`؛ إذن بوابة موافقة مستقلة من مراجع لديه write access مطلوبة فعليًا.
+- **UNKNOWN:** طلب تفاصيل endpoint `/branches/main/protection` أعاد 403 `Resource not accessible by integration`؛ لذلك لم نقرأ عدد الموافقات وبقية إعدادات Branch Protection الكلاسيكية مباشرة.
+- **تعارض وثائقي مؤكد:** `AGENTS.md` و`TEAM_OPERATING_MODEL_AR.md` و`GITHUB_AUTOMATION_STATUS_AR.md` في main ما زالت تحتوي أوصافًا قديمة تقول إن `protected=false` أو إن الحماية غير مفعلة. هذه أوصاف متقادمة أمام GitHub Branch API الحالي. PR #14 يغيّر الملفات التشغيلية ذات الصلة، لكنه ما زال OPEN / NOT DRAFT.
+- **النتيجة:** الحالة التشغيلية الصحيحة التي يجب اعتمادها الآن: main محمي، ولا توجد Required Status Checks معرفة في metadata المتاحة؛ الموافقة المستقلة مطلوبة. مصدر قاعدة الحماية وتفاصيلها الأخرى UNKNOWN. لا تغيّر الحماية أو متطلباتها ضمن FC-001.
 
 ## 7. قرار منع تعارض الملفات
 
@@ -149,7 +151,7 @@
 |---|---|---|
 | قراءة `AGENTS.md` ووثائق نموذج الفريق والفهرس وبدء التشغيل من main | VERIFIED؛ لا ينطبق إصلاح/اختبار برمجي | SHA/روابط الملفات على main |
 | قراءة Issue #2 وIssues #3–#11 و#17 | VERIFIED؛ لا ينطبق إصلاح/اختبار برمجي | روابط Issues |
-| فحص PRs المفتوحة وبيانات PR #1 و#13–#21 | VERIFIED؛ لا ينطبق إصلاح/اختبار برمجي | روابط PRs |
+| فحص PRs المفتوحة وبيانات PR #1 و#13–#22 | VERIFIED؛ لا ينطبق إصلاح/اختبار برمجي | روابط PRs وبيانات GitHub الحية |
 | مقارنة main مع PR #1 head | VERIFIED؛ 18 ahead / 20 behind | GitHub compare؛ merge base `6cebb40136f11027ec7e5e3c50f62a813a03938f` |
 | مقارنة main مع session/05 | VERIFIED؛ 23 ahead / 20 behind | GitHub compare؛ session head `fd0805a579daad06922fe654173bdc30159d6b4f` |
 | مقارنة PR #1 head مع session/05 | VERIFIED؛ session/05 ahead 5 / behind 0 | GitHub compare |
@@ -179,3 +181,59 @@
 - لم يُغلق أي Issue أو PR.
 - لم تتغير حماية الفروع أو الأسرار أو إعدادات الإنتاج.
 - لا يبدأ تنفيذ يعتمد على قواعد مالية أو قرارات غير محسومة قبل اعتماد MOSAAB.
+
+## 11. إعادة مطابقة حية — 2026-11-16
+
+### 11.1 الخط المرجعي والفروع
+
+- **VERIFIED:** آخر commit على main ما زال `ee2a019c1eb604933d984ff9aee03c4f898fbcd6` (دمج PR #12).
+- **VERIFIED:** مقارنة `main...agent/CHATGPT-1/FC-001`: 8 commits ahead / 0 behind، والملف المتغير الوحيد هو هذا التقرير `docs/agents/BASELINE_AUDIT_AR.md` (181 إضافة في لقطة المقارنة).
+- **VERIFIED:** مقارنة `main...docs/a0-captain-requirements` (PR #1): 18 ahead / 20 behind، merge-base `6cebb40136f11027ec7e5e3c50f62a813a03938f`.
+- **VERIFIED:** مقارنة `main...session/05-tech-auth-gps`: 23 ahead / 20 behind، merge-base نفسه. الفرع متباعد وغير مدمج؛ تبقى محتوياته مرجعًا غير معتمد حتى قرار MOSAAB.
+
+### 11.2 الحالة الحية للـPRs ذات الصلة
+
+| PR | الحالة عند إعادة الفحص | الدور / النطاق |
+|---:|---|---|
+| #1 | OPEN / NOT DRAFT | متطلبات A0؛ لم يتغير |
+| #13 | OPEN / NOT DRAFT | CLAUDE-1 — FC-003 |
+| #14 | OPEN / NOT DRAFT | تحديث AGENTS / START_HERE / GITHUB_AUTOMATION_STATUS |
+| #15 | OPEN / DRAFT | MANUS-1 — FC-007 |
+| #16 | OPEN / DRAFT | GitHub Copilot fallback؛ يتضمن تعديل فهرس المهام |
+| #18 | OPEN / DRAFT، وGitHub أعاد `mergeable=false` | CLAUDE-1 — FC-011 |
+| #19 | OPEN / DRAFT | MANUS-2 — FC-008 |
+| #20 | OPEN / NOT DRAFT | MANUS-1 — FC-004، إعادة إسناد Issue #5 بتوجيه MOSAAB |
+| #21 | OPEN / NOT DRAFT | تقرير GROK-1؛ ارتباطه بـIssue #6 مستنتج من العنوان/الفرع لا من Issue reference في جسم PR |
+| #22 | OPEN / DRAFT | CHATGPT-1 — FC-001 |
+
+هذه لقطة زمنية وليست ضمانًا لاستمرار الحالات. لا يوجد PR مدمج ضمن هذه القائمة عند الفحص.
+
+### 11.3 تحقق ملكية Issues والتعارضات
+
+- **VERIFIED:** Issue #2 ما زالت OPEN، وبها CLAIM سابق لـCHATGPT-1 وتعليقات تسليم، وPR #22 مفتوح على الفرع المحدد.
+- **VERIFIED:** Issues #3–#11 و#17 ما زالت OPEN؛ لا توجد GitHub assignees لهذه Issues. Role IDs تظل ملكيات تشغيلية وليست حسابات GitHub.
+- **VERIFIED:** PR #20 يصرح بأن MANUS-1 تولى FC-004 / Issue #5 بتوجيه MOSAAB؛ لذلك لا يصح إبقاء Claude-2 مالكًا تنفيذيًا حاليًا لهذه المهمة في فهرس محدث.
+- **VERIFIED:** PR #16 ما زال OPEN / DRAFT ويغيّر `docs/agents/AGENT_TASK_INDEX_AR.md`، ولذلك ما زال تعديل الملف نفسه متداخلًا مباشرة مع FC-001.
+- **VERIFIED — تناقضات داخل مخرجات PR #16 الحالية:**
+  - `TASK_EXECUTION_BOARD_AR.md` يقول إن Issue #2 بلا تعليقات أو تسليم وUNCLAIMED، بينما Issue #2 الفعلية تحتوي CLAIM وتعليقات، وPR #22 موجود. هذه معلومة غير صحيحة وقت المطابقة الحالية.
+  - اللوحة تقول إن PR #15 OPEN وغير Draft، بينما PR API يعيد `draft=true`.
+  - اللوحة تقول إن Issue #6 لا يوجد له PR مفتوح، بينما PR #21 مفتوح بعنوان GROK-1 FC-005؛ صلة PR #21 بـIssue #6 ما زالت INFERRED لأن جسم PR لا يربطه صراحةً.
+  - اللوحة لا تعكس أن MANUS-1 تولى Issue #5 عبر PR #20 بتوجيه MOSAAB.
+  - `fc-agent.md` داخل PR #16 ما زال يربط Issue #5 بدور CLAUDE-2؛ وهذا لا يطابق إعادة الإسناد الموثقة في PR #20.
+  - لوحة PR #16 مؤرخة 2026-11-15، بينما المطابقة الحالية على GitHub بتاريخ 2026-11-16؛ كما أن SHA المكتوب في اللوحة لفرع PR #16 لا يطابق Head SHA الذي أعاده PR API الحالي.
+- **PROPOSED:** قبل أن يصبح PR #16 جاهزًا للمراجعة، يجب تحديث Task Execution Board، ومراجعة Role Map في `fc-agent.md`، ومصالحة تغيير فهرس المهام مع مالك FC-001؛ لا تدمج هذه الحالة المتعارضة كأنها لقطة حية.
+- **UNKNOWN:** هل يريد MOSAAB الاحتفاظ بتغيير فهرس المهام داخل PR #16 أم نقل ملكية تحريره إلى FC-001. لذلك لم يتم تعديل `AGENT_TASK_INDEX_AR.md` في فرع FC-001.
+
+### 11.4 بوابات PR #22
+
+- **VERIFIED:** Head SHA الحالي: `64bbd51823eb61c7af90f59d362f90eed631923c`; PR #22 OPEN / DRAFT.
+- **VERIFIED:** لا توجد Review Submissions أو Inline Review Threads على PR #22 عند إعادة الفحص.
+- **NOT_RUN:** GitHub Workflow Runs وCommit Statuses أعادا مجموعتين فارغتين لهذا الـHead؛ لا نسجلها PASS.
+- **NOT_REQUIRED:** اختبارات المنتج والبناء غير لازمة لتغيير وثائقي فقط.
+- **NOT_RUN:** `git diff --check` لم يُنفذ؛ لم تُستخدم Git CLI في هذه الجلسة.
+
+### 11.5 القرار التنفيذي
+
+- **PARTIAL:** تقرير baseline جرى تحديثه وإعادة مطابقته مع GitHub الحالي.
+- **BLOCKED:** تحديث الملف الأساسي `AGENT_TASK_INDEX_AR.md` لم ينفذ بسبب PR #16 المفتوح الذي يغيّر الملف نفسه، وبسبب تناقضات مثبتة في لوحة المهام وRole Map داخله.
+- **NEXT ACTION:** توحيد قرار ملكية الفهرس بين PR #16 وFC-001. بعد حسم ذلك، أعد قراءة main والفهرس، ثم نفّذ تحديثًا واحدًا غير متداخل وحدث PR #22.
