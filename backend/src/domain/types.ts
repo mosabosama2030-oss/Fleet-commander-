@@ -10,7 +10,7 @@ export interface Vehicle {
   readonly id: string;
   readonly ownerUserId: string;
   readonly label: string;
-  readonly status: 'active';
+  readonly status: 'active' | 'retired';
 }
 
 export interface Shift {

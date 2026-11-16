@@ -126,6 +126,26 @@ export class FleetService {
     return vehicle;
   }
 
+  /**
+   * O-01 (قرار MOSAAB 2026-11-16): «مركبة واحدة» = مركبة نشطة واحدة في كل وقت، واستبدالها مسموح:
+   * تُسحب القديمة (retired) ثم تُسجَّل الجديدة. لا حذف؛ الشيفتات القديمة تبقى مرتبطة بمركبتها.
+   * لا يجوز سحب مركبة عليها شيفت OPEN. (الحالة OPEN: قاعدة PROPOSED لحمايته من تغيير مركبة أثناء العمل.)
+   */
+  retireVehicle(input: { ownerUserId: string; vehicleId: string }): Vehicle {
+    const v = this.#vehicles.get(input.vehicleId);
+    if (!v || v.ownerUserId !== input.ownerUserId) throw notFound('vehicle not found');
+    if (v.status === 'retired') throw conflict('vehicle is already retired');
+    for (const s of this.#shifts.values()) {
+      if (s.ownerUserId === input.ownerUserId && s.vehicleId === v.id && s.status === 'OPEN') {
+        throw conflict('cannot retire a vehicle with an open shift');
+      }
+    }
+    const retired: Vehicle = Object.freeze({ ...v, status: 'retired' as const });
+    this.#vehicles.set(retired.id, retired);
+    this.#log(input.ownerUserId, 'vehicle.retire', 'vehicle', retired.id);
+    return retired;
+  }
+
   startShift(input: {
     ownerUserId: string;
     vehicleId: string;
@@ -134,6 +154,7 @@ export class FleetService {
     const km = odometer(input.startOdometerKm, 'startOdometerKm');
     const vehicle = this.#vehicles.get(input.vehicleId);
     if (!vehicle || vehicle.ownerUserId !== input.ownerUserId) throw notFound('vehicle not found');
+    if (vehicle.status !== 'active') throw conflict('vehicle is retired'); // O-01
     for (const s of this.#shifts.values()) {
       if (s.ownerUserId === input.ownerUserId && s.status === 'OPEN') {
         throw conflict('another shift is already open'); // T-SH-01 (قاعدة PROPOSED في STATE_MACHINES)

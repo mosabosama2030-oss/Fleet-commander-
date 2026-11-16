@@ -60,6 +60,39 @@ describe('vehicle (DEC-01: one vehicle only)', () => {
     assert.equal(svc.registerVehicle(CAPTAIN, 'x'.repeat(60)).label.length, 60);
     rejects(() => svc.registerVehicle(OTHER, 'x'.repeat(61)), 'VALIDATION_FAILED');
   });
+  it('O-01: allows replacing the vehicle — retire the old one, then register a new one', () => {
+    const { svc } = setup();
+    const a = svc.registerVehicle(CAPTAIN, 'Car A');
+    rejects(() => svc.registerVehicle(CAPTAIN, 'Car B'), 'CONFLICT');
+    const retired = svc.retireVehicle({ ownerUserId: CAPTAIN, vehicleId: a.id });
+    assert.equal(retired.status, 'retired');
+    const b = svc.registerVehicle(CAPTAIN, 'Car B');
+    assert.equal(b.status, 'active');
+    rejects(() => svc.registerVehicle(CAPTAIN, 'Car C'), 'CONFLICT'); // ما زالت مركبة نشطة واحدة فقط
+  });
+  it('O-01: cannot retire twice, retire an unknown/foreign vehicle, or retire during an open shift', () => {
+    const env = setup();
+    const s = openShift(env);
+    rejects(() => env.svc.retireVehicle({ ownerUserId: CAPTAIN, vehicleId: s.vehicleId }), 'CONFLICT');
+    rejects(() => env.svc.retireVehicle({ ownerUserId: OTHER, vehicleId: s.vehicleId }), 'NOT_FOUND');
+    rejects(() => env.svc.retireVehicle({ ownerUserId: CAPTAIN, vehicleId: 'nope' }), 'NOT_FOUND');
+    env.svc.endShift({ ownerUserId: CAPTAIN, shiftId: s.id, endOdometerKm: 1100 });
+    env.svc.retireVehicle({ ownerUserId: CAPTAIN, vehicleId: s.vehicleId });
+    rejects(() => env.svc.retireVehicle({ ownerUserId: CAPTAIN, vehicleId: s.vehicleId }), 'CONFLICT');
+  });
+  it('O-01: a retired vehicle cannot start a shift, and old shifts keep their vehicle', () => {
+    const env = setup();
+    const s = openShift(env);
+    env.svc.endShift({ ownerUserId: CAPTAIN, shiftId: s.id, endOdometerKm: 1100 });
+    env.svc.retireVehicle({ ownerUserId: CAPTAIN, vehicleId: s.vehicleId });
+    rejects(() => env.svc.startShift({ ownerUserId: CAPTAIN, vehicleId: s.vehicleId, startOdometerKm: 1100 }), 'CONFLICT');
+    assert.equal(env.svc.getShift(CAPTAIN, s.id).vehicleId, s.vehicleId);
+    const b = env.svc.registerVehicle(CAPTAIN, 'Car B');
+    const s2 = env.svc.startShift({ ownerUserId: CAPTAIN, vehicleId: b.id, startOdometerKm: 1100 });
+    assert.equal(s2.vehicleId, b.id);
+    const log = env.svc.auditLog(CAPTAIN).map((a) => a.action);
+    assert.ok(log.includes('vehicle.retire'));
+  });
   it('allows another captain to register their own vehicle', () => {
     const { svc } = setup();
     svc.registerVehicle(CAPTAIN, 'Car A');
