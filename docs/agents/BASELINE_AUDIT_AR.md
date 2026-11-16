@@ -18,7 +18,7 @@
 2. **VERIFIED:** PR #1 مفتوح وغير مدمج، لكنه **ليس Draft** حاليًا: `state=open`, `draft=false`. هذا يخالف النص الذي يطلب إبقاءه OPEN/DRAFT؛ لم أغيّر حالة PR #1.
 3. **VERIFIED:** فرع `session/05-tech-auth-gps` عند `fd0805a579daad06922fe654173bdc30159d6b4f`. المقارنة مع `main`: 23 commits ahead و20 behind؛ الحالة `diverged`. لا يجوز اعتباره امتدادًا مباشرًا لـmain أو نقل محتواه تلقائيًا.
 4. **VERIFIED:** رأس PR #1 هو `a727c8a591a312b0e856d297e7c1bc50fa5b140a`. المقارنة مع `main`: 18 ahead و20 behind، والحالة `diverged`. PR #1 أقدم من session/05 بخمسة commits؛ المقارنة بينهما تُظهر session/05 متقدمًا بخمسة commits دون commits متأخرة.
-5. **VERIFIED:** PR #14 (Draft) يعدّل `START_HERE_AR.md`، وPR #16 (Draft) يعدّل `AGENT_TASK_INDEX_AR.md`. لذلك لم أعدّل أيًا من هذين الملفين في هذا الفرع لتجنب تعارض الكتابة المتزامنة.
+5. **VERIFIED:** PR #14 مفتوح وغير Draft حاليًا (`draft=false`) ويعدّل `START_HERE_AR.md`، وPR #16 مفتوح Draft (`draft=true`) ويعدّل `AGENT_TASK_INDEX_AR.md`. لذلك لم أعدّل أيًا من هذين الملفين في هذا الفرع لتجنب تعارض الكتابة المتزامنة.
 6. **PARTIAL:** تم إعداد هذا التقرير على فرع مستقل. تحديث فهرس المهام مؤجل إلى ما بعد حسم PR #16 أو التنسيق مع مالكه، ولا يُعلن FC-001 مكتملًا قبل ذلك.
 
 ## 2. مصدر الحقيقة وحدود الاعتماد
@@ -116,7 +116,7 @@
 |---:|---|---|---|
 | #1 | OPEN / NOT DRAFT | A0 requirements؛ ستة ملفات وثائق | لا تداخل مباشر مع تقرير baseline أو فهرس المهام |
 | #13 | OPEN / NOT DRAFT | CLAUDE-1 FC-003 | لا |
-| #14 | OPEN / DRAFT | تصحيح حالة تفعيل الوكلاء وروابط الدخول | `START_HERE_AR.md`؛ لذلك لم أعدله |
+| #14 | OPEN / NOT DRAFT (وقت إعادة الفحص 2026-11-16) | تصحيح حالة تفعيل الوكلاء وروابط الدخول | `START_HERE_AR.md`؛ لذلك لم أعدله |
 | #15 | OPEN / DRAFT | MANUS-1 FC-007 | لا |
 | #16 | OPEN / DRAFT | GitHub free agent runner وتحديث task index | `docs/agents/AGENT_TASK_INDEX_AR.md`؛ تعارض مباشر يمنع تعديله بالتوازي |
 | #18 | OPEN / NOT DRAFT | CLAUDE-1 FC-011 | لا |
@@ -136,7 +136,7 @@
 
 ## 7. قرار منع تعارض الملفات
 
-- `docs/agents/START_HERE_AR.md`: لا تعديل في FC-001 بسبب PR #14 المفتوح.
+- `docs/agents/START_HERE_AR.md`: لا تعديل في FC-001 بسبب PR #14 المفتوح الذي يغيّر الملف (وهو NOT DRAFT وقت إعادة الفحص).
 - `docs/agents/AGENT_TASK_INDEX_AR.md`: لا تعديل في FC-001 بسبب PR #16 المفتوح الذي يغيّر الملف نفسه.
 - `docs/agents/BASELINE_AUDIT_AR.md`: لم يظهر ضمن الملفات المتغيرة في PRs المفتوحة التي فُحصت؛ لذلك هو مخرج FC-001 الوحيد في هذا الفرع.
 - لا توجد تغييرات منتج أو Backend أو أسرار أو إعدادات إنتاج.
