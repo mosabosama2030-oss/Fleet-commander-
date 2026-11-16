@@ -76,7 +76,7 @@ This workflow is invoked only by an administrator's /fc-run comment on an issue.
 | #2 | CHATGPT-1 — engineering coordination and baseline index |
 | #3 | CHATGPT-2 — independent security and A0 quality review |
 | #4 | CLAUDE-1 — backend/database/hosting decision matrix |
-| #5 | CLAUDE-2 — Web/PWA and UX architecture |
+| #5 | MANUS-1 — Web/PWA UX specification (MOSAAB-directed reassignment; PR #20) |
 | #6 | GROK-1 — architecture consistency review |
 | #7 | GROK-2 — test strategy and traceability |
 | #8 | MANUS-1 — Captain journey and workflow gaps |
