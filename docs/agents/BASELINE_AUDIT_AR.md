@@ -130,8 +130,9 @@
 
 - `AGENTS.md` و`TEAM_OPERATING_MODEL_AR.md` على main يذكران أن الحماية غير مفعلة وقت إعداد الوثائق.
 - وصف PR #14 المفتوح Draft يقول إن فحصه وجد `main.protected=true` مع عدم وجود Repository Rulesets.
-- لم تتوفر في أدوات هذه الجلسة قراءة مباشرة لإعدادات Branch Protection/Rulesets الحالية.
-- النتيجة: **UNKNOWN — تعارض مصادر**. لا يجوز إعلان الحماية مفعلة أو غير مفعلة اعتمادًا على هذه الوثائق وحدها؛ يلزم فحص إداري حي من MOSAAB.
+- **VERIFIED — محاولة الدمج بتاريخ 2026-11-16:** بعد تحويل PR #22 إلى Ready، رفض GitHub طلب الدمج برمز HTTP 405 بالنص: `At least 1 approving review is required by reviewers with write access. Cannot change this locked branch`. هذا يثبت وجود بوابة موافقة فعلية على `main` وقت المحاولة.
+- **UNKNOWN:** لم نتحقق مباشرة من مصدر القاعدة (Branch Protection أم Ruleset) ولا من بقية إعداداتها؛ لذلك يظل التفصيل الإداري الكامل غير معلوم.
+- النتيجة: لا نصف `main` بأنه غير محمي. متطلب موافقة واحدة من مراجع لديه صلاحية كتابة **VERIFIED عمليًا** من استجابة GitHub، وتفاصيل الإعداد الداخلية UNKNOWN.
 
 ## 7. قرار منع تعارض الملفات
 
@@ -153,6 +154,7 @@
 | مقارنة main مع session/05 | VERIFIED؛ 23 ahead / 20 behind | GitHub compare؛ session head `fd0805a579daad06922fe654173bdc30159d6b4f` |
 | مقارنة PR #1 head مع session/05 | VERIFIED؛ session/05 ahead 5 / behind 0 | GitHub compare |
 | تحديث `AGENT_TASK_INDEX_AR.md` | NOT RUN — تعارض مع PR #16 | لم يُكتب الملف في هذا الفرع |
+| محاولة دمج PR #22 بعد المراجعة وتحويله إلى Ready | BLOCKED — GitHub HTTP 405: يلزم اعتماد واحد من مراجع بصلاحية كتابة | لم يتم تجاوز الحماية أو تغيير إعداداتها |
 | اختبارات المنتج أو البناء | NOT_REQUIRED لهذه الوثيقة فقط؛ لم تُنفذ | لا كود منتج في النطاق |
 | `git diff --check` | NOT RUN | لا توجد بيئة Git CLI مستخدمة في هذه الجلسة |
 
