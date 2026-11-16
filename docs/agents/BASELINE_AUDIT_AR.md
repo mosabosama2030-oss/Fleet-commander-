@@ -187,7 +187,7 @@
 ### 11.1 الخط المرجعي والفروع
 
 - **VERIFIED:** آخر commit على main ما زال `ee2a019c1eb604933d984ff9aee03c4f898fbcd6` (دمج PR #12).
-- **VERIFIED:** مقارنة `main...agent/CHATGPT-1/FC-001` قبل هذا التحديث: 10 commits ahead / 0 behind، والملف المتغير الوحيد هو هذا التقرير `docs/agents/BASELINE_AUDIT_AR.md` (239 إضافة في تلك اللقطة).
+- **VERIFIED:** GitHub compare لـ `main...agent/CHATGPT-1/FC-001` يثبت أن الفرع متقدم على main دون commits خلفية، وأن الملف المتغير الوحيد هو هذا التقرير `docs/agents/BASELINE_AUDIT_AR.md`. العدد الدقيق للـahead والإضافات يتغير مع كل تحديث لهذا التقرير، لذا يُعتمد رقم المقارنة الحي في PR #22 لا رقم ذاتي ثابت داخل الملف.
 - **VERIFIED:** مقارنة `main...docs/a0-captain-requirements` (PR #1): 18 ahead / 20 behind، merge-base `6cebb40136f11027ec7e5e3c50f62a813a03938f`.
 - **VERIFIED:** مقارنة `main...session/05-tech-auth-gps`: 23 ahead / 20 behind، merge-base نفسه. الفرع متباعد وغير مدمج؛ تبقى محتوياته مرجعًا غير معتمد حتى قرار MOSAAB.
 
