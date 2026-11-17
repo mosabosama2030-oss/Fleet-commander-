@@ -8,3 +8,8 @@ export { operatingDate, systemClock } from './domain/time.ts';
 export type { Clock, IdGenerator } from './domain/time.ts';
 export * from './domain/types.ts'; // يشمل Page وListOptions
 export * from './http/wire.ts';
+export { VoiceSession, resultReply, formatPounds } from './voice/session.ts';
+export type { VoiceAction, VoiceContext, Reply, TurnResult } from './voice/session.ts';
+export { parseUtterance } from './voice/intents.ts';
+export type { Intent, Parsed, ReplyLocale, VoicePlatform } from './voice/intents.ts';
+export { normalize, tokens, extractNumbers } from './voice/numbers.ts';
