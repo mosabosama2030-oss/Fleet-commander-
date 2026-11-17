@@ -30,3 +30,4 @@ npm run typecheck # يتطلب typescript و@types/node
 - رفض بدء شيفت ثانٍ والأول OPEN: قاعدة PROPOSED في STATE_MACHINES (الفرع session/05 غير المدمج).
 - مفتاح الـIdempotency مقيّد بالكابتن؛ إعادة نفس المفتاح بحمولة أو عملية مختلفة ⇒ `IDEMPOTENCY_KEY_REUSED` (تلميح 409).
 - `httpHint` في الأخطاء تلميح فقط؛ تعيين HTTP الفعلي في طبقة API لاحقًا ولا يغيّر عقد OpenAPI.
+- `src/http/wire.ts` (الزيادة 2): دوال نقية بلا حزم لطبقة HTTP — `idempotencyKeyFrom`، `listOptionsFrom`، `toWirePage`، `errorResponse`، `wireErrorResponse`. لا إطار عمل ولا شكل Money ولا حقول الكيانات؛ Fastify يستعملها لاحقًا.

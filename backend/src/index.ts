@@ -7,3 +7,4 @@ export type { Money } from './domain/money.ts';
 export { operatingDate, systemClock } from './domain/time.ts';
 export type { Clock, IdGenerator } from './domain/time.ts';
 export * from './domain/types.ts'; // يشمل Page وListOptions
+export * from './http/wire.ts';
