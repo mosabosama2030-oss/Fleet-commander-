@@ -130,8 +130,22 @@ export class VoiceSession {
     this.#ttlMs = ttlMs;
   }
 
-  handle(transcript: string, ctx: VoiceContext = {}): TurnResult {
-    const parsed = parseUtterance(transcript);
+  /** هل يستحق هذا الكلام سؤال النموذج؟ فقط حين لا تفهمه القواعد وليس جوابًا لخانة معلّقة. */
+  wantsLlm(transcript: string): boolean {
+    if (!/[\p{L}\d]/u.test(transcript)) return false;
+    if (parseUtterance(transcript).intent.kind !== 'unknown') return false;
+    return !(this.#draft && this.#asking);
+  }
+
+  /**
+   * `hint`: نية اقترحها النموذج لجملة عجزت القواعد عنها. تُستعمل فقط إن بقيت القواعد على unknown،
+   * ولا تكون أبدًا تأكيدًا؛ وتمر بنفس مسودة/تأكيد/سؤال الخانات الناقصة.
+   */
+  handle(transcript: string, ctx: VoiceContext = {}, hint: Intent | null = null): TurnResult {
+    const base = parseUtterance(transcript);
+    const useHint =
+      hint !== null && base.intent.kind === 'unknown' && hint.kind !== 'confirm_yes' && hint.kind !== 'confirm_no' && hint.kind !== 'unknown';
+    const parsed = useHint ? { ...base, intent: hint as Intent } : base;
     const hasLetters = /\p{L}/u.test(transcript);
     const locale: ReplyLocale = hasLetters ? parsed.locale : (this.#lastLocale ?? parsed.locale);
     if (hasLetters) this.#lastLocale = parsed.locale;
