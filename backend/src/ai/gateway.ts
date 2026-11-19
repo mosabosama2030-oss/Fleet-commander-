@@ -197,13 +197,24 @@ export class LlmGateway {
     }
     this.#requests += 1;
     this.#tokens += estimate;
-    this.#persist();
+    try {
+      this.#persist();
+    } catch {
+      // فشل الحفظ ⇒ نتراجع ونغلق: لا نستدعي مزودًا بميزانية لا تُحفظ.
+      this.#requests -= 1;
+      this.#tokens -= estimate;
+      throw new LlmError('BUDGET_EXCEEDED', 'budget store unavailable');
+    }
   }
 
   /** يستبدل التقدير بالفعلي؛ الطلب يبقى محسوبًا حتى لو فشل (قد يكون المزود حاسبه). */
   #reconcile(estimate: number, actual: number): void {
     this.#tokens = Math.max(0, this.#tokens - estimate + actual);
-    this.#persist();
+    try {
+      this.#persist();
+    } catch {
+      // المخزّن يبقى على القيمة الأعلى (المحافظة). فشل الحفظ هنا لا يحوّل نجاحًا إلى fallback.
+    }
   }
 
   #persist(): void {

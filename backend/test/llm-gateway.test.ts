@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { LlmGateway, LlmError, SAFE_DEFAULT_CONFIG, redact } from '../src/index.ts';
-import type { AuditSink, GatewayConfig, LlmProvider, LlmRequest, ProviderResult } from '../src/index.ts';
+import type { AuditSink, BudgetStore, GatewayConfig, LlmProvider, LlmRequest, ProviderResult } from '../src/index.ts';
 
 type Behavior = (signal: AbortSignal, calls: number) => Promise<ProviderResult>;
 
@@ -311,5 +311,47 @@ describe('audit', () => {
     await codeOf(gw.complete(req()));
     assert.equal(events.length, 1);
     assert.equal((events[0] as { outcome: string }).outcome, 'ALL_PROVIDERS_FAILED');
+  });
+});
+
+describe('budget store failures', () => {
+  function withStore(store: BudgetStore, providers: LlmProvider[]) {
+    const clock = { now: () => new Date('2026-11-19T10:00:00Z') };
+    return new LlmGateway({
+      config: cfg({}, providers.map((p) => p.id)),
+      providers: Object.fromEntries(providers.map((p) => [p.id, p])),
+      clock,
+      budgetStore: store,
+    });
+  }
+  it('fails closed (BUDGET_EXCEEDED) and never calls a provider when the reservation cannot be saved', async () => {
+    const a = fake('a', async () => ok());
+    const gw = withStore({ load: () => null, save: () => { throw new Error('disk full'); } }, [a]);
+    assert.equal(await codeOf(gw.complete(req())), 'BUDGET_EXCEEDED');
+    assert.equal(a.calls, 0);
+  });
+  it('a failed save after a successful answer does not trigger a second provider call', async () => {
+    const a = fake('a', async () => ok('fine'));
+    const b = fake('b', async () => ok('second'));
+    let saves = 0;
+    const gw = withStore({ load: () => null, save: () => { saves += 1; if (saves >= 2) throw new Error('disk full'); } }, [a, b]);
+    const r = await gw.complete(req());
+    assert.equal(r.provider, 'a');
+    assert.equal(r.text, 'fine');
+    assert.equal(b.calls, 0);
+  });
+  it('a rolled-back reservation does not leak budget', async () => {
+    const a = fake('a', async () => ok());
+    let failing = true;
+    const store: BudgetStore = { load: () => null, save: () => { if (failing) throw new Error('x'); } };
+    const gw = new LlmGateway({
+      config: cfg({ budget: { maxRequestsPerDay: 1, maxTokensPerDay: 100000 } }, ['a']),
+      providers: { a },
+      clock: { now: () => new Date('2026-11-19T10:00:00Z') },
+      budgetStore: store,
+    });
+    assert.equal(await codeOf(gw.complete(req())), 'BUDGET_EXCEEDED');
+    failing = false;
+    assert.equal(await codeOf(gw.complete(req())), 'none');
   });
 });
