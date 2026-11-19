@@ -31,3 +31,4 @@ export type {
 } from './ai/contracts.ts';
 export { llmIntent, validateLlmIntent, LLM_INTENT_KINDS } from './voice/llm-intent.ts';
 export { handleAssisted } from './voice/assisted.ts';
+export { FileBudgetStore } from './ai/file-budget-store.ts';
