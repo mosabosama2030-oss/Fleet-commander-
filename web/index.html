@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f7fb">
+  <meta name="description" content="واجهة Fleet Commander الأولية للكابتن الفردي">
+  <title>Fleet Commander | الرئيسية</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <div class="app-frame">
+    <button class="menu-backdrop" id="menu-backdrop" type="button" aria-label="إغلاق القائمة" hidden></button>
+
+    <aside class="sidebar" id="sidebar" aria-label="القائمة الرئيسية">
+      <a class="brand" href="./index.html" aria-label="Fleet Commander - الرئيسية">
+        <span class="brand-mark" aria-hidden="true">FC</span>
+        <span class="brand-copy">
+          <strong>Fleet Commander</strong>
+          <small>مساعد الكابتن الذكي</small>
+        </span>
+      </a>
+
+      <div class="sidebar-label">مساحة العمل</div>
+      <nav class="main-nav" aria-label="التنقل الرئيسي">
+        <button class="nav-link is-active" type="button" data-page-target="home" aria-current="page">
+          <span class="nav-icon" aria-hidden="true">⌂</span><span>الرئيسية</span>
+        </button>
+        <button class="nav-link" type="button" data-page-target="shift">
+          <span class="nav-icon" aria-hidden="true">◷</span><span>الشيفت</span>
+        </button>
+        <button class="nav-link" type="button" data-page-target="trips">
+          <span class="nav-icon" aria-hidden="true">↗</span><span>الرحلات</span>
+        </button>
+        <button class="nav-link" type="button" data-page-target="expenses">
+          <span class="nav-icon" aria-hidden="true">▤</span><span>المصروفات</span>
+        </button>
+        <button class="nav-link" type="button" data-page-target="reports">
+          <span class="nav-icon" aria-hidden="true">▥</span><span>التقارير</span>
+        </button>
+        <button class="nav-link" type="button" data-page-target="settings">
+          <span class="nav-icon" aria-hidden="true">⚙</span><span>الإعدادات</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="prototype-card">
+          <span class="prototype-dot" aria-hidden="true"></span>
+          <div>
+            <strong>نموذج واجهة أولي</strong>
+            <p>غير متصل ببيانات حقيقية</p>
+          </div>
+        </div>
+        <p class="sidebar-footnote">نسخة تطويرية للمراجعة فقط</p>
+      </div>
+    </aside>
+
+    <div class="workspace">
+      <header class="topbar">
+        <div class="topbar-leading">
+          <button class="menu-toggle" id="menu-toggle" type="button" aria-label="فتح القائمة" aria-controls="sidebar" aria-expanded="false">
+            <span aria-hidden="true">☰</span>
+          </button>
+          <div class="page-heading">
+            <span class="eyebrow">مساحة الكابتن</span>
+            <h1 id="page-title">الرئيسية</h1>
+          </div>
+        </div>
+        <div class="topbar-trailing">
+          <div class="connection-pill" id="network-state" data-state="unknown" title="هذا مؤشر اتصال الجهاز فقط، وليس تحققًا من الخادم">
+            <span class="connection-dot" aria-hidden="true"></span>
+            <span id="network-label">جارٍ فحص اتصال الجهاز</span>
+          </div>
+          <div class="account-pill">
+            <span class="account-avatar" aria-hidden="true">ك</span>
+            <span>وضع المعاينة</span>
+          </div>
+        </div>
+      </header>
+
+      <main class="main-content" id="main-content">
+        <section class="page-section is-visible" data-page="home" aria-labelledby="home-title">
+          <div class="hero-panel">
+            <div class="hero-copy">
+              <span class="hero-kicker">FLEET COMMANDER · CAPTAIN</span>
+              <h2 id="home-title">يومك أوضح، عندما تكون تفاصيل الشيفت في مكان واحد.</h2>
+              <p>واجهة عربية أولية لتنظيم تجربة الكابتن الفردي. نبدأ بالوضوح، ثم نربط كل إجراء ببيانات مؤكدة من الخادم.</p>
+              <div class="hero-actions">
+                <button class="button button-primary" type="button" data-page-target="shift">استعراض مساحة الشيفت</button>
+                <button class="button button-secondary" type="button" data-page-target="reports">عرض حالة التقارير</button>
+              </div>
+            </div>
+            <div class="hero-art" aria-hidden="true">
+              <div class="art-orbit orbit-one"></div>
+              <div class="art-orbit orbit-two"></div>
+              <div class="art-center"><span>FC</span></div>
+              <span class="art-node node-one">شيفت</span>
+              <span class="art-node node-two">رحلات</span>
+              <span class="art-node node-three">وضوح</span>
+            </div>
+          </div>
+
+          <div class="notice notice-info" role="status">
+            <span class="notice-icon" aria-hidden="true">i</span>
+            <div>
+              <strong>هذه واجهة عرض وليست حسابًا متصلًا.</strong>
+              <p>لم يتم تسجيل الدخول أو قراءة أو حفظ أي بيانات تشغيلية. لن يظهر نجاح حفظ أو دخل أو صافي قبل وجود اتصال فعلي واختبارات موثقة.</p>
+            </div>
+          </div>
+
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow">التنقل السريع</span>
+              <h2>مساحة العمل</h2>
+            </div>
+            <p>اختر القسم لاستعراض ما سيُبنى فيه.</p>
+          </div>
+
+          <div class="workspace-grid">
+            <button class="workspace-card card-shift" type="button" data-page-target="shift">
+              <span class="workspace-icon" aria-hidden="true">◷</span>
+              <span class="workspace-card-title">الشيفت</span>
+              <span class="workspace-card-copy">حالة الشيفت وبداية اليوم ونهايته بعد ربط الخادم.</span>
+              <span class="workspace-card-link">استعراض القسم <b aria-hidden="true">←</b></span>
+            </button>
+            <button class="workspace-card card-trips" type="button" data-page-target="trips">
+              <span class="workspace-icon" aria-hidden="true">↗</span>
+              <span class="workspace-card-title">الرحلات</span>
+              <span class="workspace-card-copy">تسجيل الرحلات يدويًا، رحلةً برحلة، وفق العقد المعتمد.</span>
+              <span class="workspace-card-link">استعراض القسم <b aria-hidden="true">←</b></span>
+            </button>
+            <button class="workspace-card card-expenses" type="button" data-page-target="expenses">
+              <span class="workspace-icon" aria-hidden="true">▤</span>
+              <span class="workspace-card-title">المصروفات</span>
+              <span class="workspace-card-copy">إدخال المصروفات بعد اعتماد التصنيفات والعملة.</span>
+              <span class="workspace-card-link">استعراض القسم <b aria-hidden="true">←</b></span>
+            </button>
+            <button class="workspace-card card-reports" type="button" data-page-target="reports">
+              <span class="workspace-icon" aria-hidden="true">▥</span>
+              <span class="workspace-card-title">التقارير</span>
+              <span class="workspace-card-copy">عرض سجل موثق وتقارير بلا حسابات مالية تخمينية.</span>
+              <span class="workspace-card-link">استعراض القسم <b aria-hidden="true">←</b></span>
+            </button>
+          </div>
+
+          <div class="bottom-note">
+            <span class="bottom-note-mark" aria-hidden="true">✓</span>
+            <div>
+              <strong>مبدأ البناء</strong>
+              <p>المصدر قبل الاستنتاج، وتأكيد الخادم قبل إعلان النجاح، والقرار البشري قبل أي إجراء حساس.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="page-section" data-page="shift" aria-labelledby="shift-title" hidden>
+          <div class="section-intro">
+            <span class="eyebrow">إدارة يوم العمل</span>
+            <h2 id="shift-title">الشيفت</h2>
+            <p>ستظهر حالة الشيفت فقط بعد التحقق من حساب الكابتن واستجابة الخادم.</p>
+          </div>
+          <div class="empty-panel">
+            <div class="empty-illustration" aria-hidden="true">◷</div>
+            <span class="status-chip status-muted">بانتظار ربط الخادم</span>
+            <h3>لا يمكن التحقق من حالة الشيفت الآن</h3>
+            <p>هذه النسخة لا تبدأ شيفتًا ولا تنهيه. لا يوجد بعد مسار HTTP متصل أو تخزين دائم يمكن تأكيده.</p>
+            <button class="button button-secondary" type="button" data-page-target="home">العودة للرئيسية</button>
+          </div>
+          <div class="detail-grid">
+            <article class="detail-card">
+              <span class="detail-label">قبل بدء الشيفت</span>
+              <h3>بيانات البداية</h3>
+              <p>حقول العداد والإثباتات ما زالت تحتاج اعتمادًا قبل فرضها على الكابتن.</p>
+            </article>
+            <article class="detail-card">
+              <span class="detail-label">عند الإغلاق</span>
+              <h3>مراجعة وتأكيد</h3>
+              <p>لن يتم إعلان الإغلاق قبل استجابة مؤكدة، وسيظل التصحيح سجلًا إضافيًا لا حذفًا صامتًا.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="page-section" data-page="trips" aria-labelledby="trips-title" hidden>
+          <div class="section-intro">
+            <span class="eyebrow">الإدخال اليدوي</span>
+            <h2 id="trips-title">الرحلات</h2>
+            <p>الرحلة تُسجل يدويًا من الكابتن؛ لا يوجد استيراد تلقائي من تطبيقات النقل.</p>
+          </div>
+          <div class="empty-panel">
+            <div class="empty-illustration" aria-hidden="true">↗</div>
+            <span class="status-chip status-muted">العقد غير متصل</span>
+            <h3>سجل الرحلات لم يُربط بعد</h3>
+            <p>نواة المجال موجودة في مسار Backend غير مدمج، لكن واجهة HTTP والتخزين لم تصبحا جاهزتين. لذلك لا يوجد نموذج يحفظ بيانات غير مؤكدة.</p>
+            <button class="button button-secondary" type="button" data-page-target="shift">العودة إلى الشيفت</button>
+          </div>
+        </section>
+
+        <section class="page-section" data-page="expenses" aria-labelledby="expenses-title" hidden>
+          <div class="section-intro">
+            <span class="eyebrow">متابعة التكاليف</span>
+            <h2 id="expenses-title">المصروفات</h2>
+            <p>إدخال المصروفات يحتاج تصنيفات وقواعد عملة وتقريب معتمدة.</p>
+          </div>
+          <div class="empty-panel">
+            <div class="empty-illustration" aria-hidden="true">▤</div>
+            <span class="status-chip status-warning">قرار منتج مطلوب</span>
+            <h3>تصنيفات المصروفات لم تُعتمد بعد</h3>
+            <p>DEC-05 وDEC-09 ما زالتا مفتوحتين. لن نفرض تصنيفًا أو عملة أو قيمة افتراضية من دون قرار موثق.</p>
+            <button class="button button-secondary" type="button" data-page-target="reports">معرفة أثر ذلك على التقارير</button>
+          </div>
+        </section>
+
+        <section class="page-section" data-page="reports" aria-labelledby="reports-title" hidden>
+          <div class="section-intro">
+            <span class="eyebrow">قراءة الأداء</span>
+            <h2 id="reports-title">التقارير</h2>
+            <p>لا تظهر نتائج مالية إلا عندما تكون قواعد الحساب ومصادر الأرقام معتمدة وقابلة للتتبع.</p>
+          </div>
+          <div class="notice notice-warning">
+            <span class="notice-icon" aria-hidden="true">!</span>
+            <div>
+              <strong>المحرك المالي غير متاح بعد.</strong>
+              <p>DEC-03 يحتاج أمثلة شيفت معتمدة، كما أن تصنيفات المصروفات والعملة والتقريب لم تُحسم. لا توجد أرقام دخل أو صافي في هذه المعاينة.</p>
+            </div>
+          </div>
+          <div class="empty-panel empty-panel-compact">
+            <div class="empty-illustration" aria-hidden="true">▥</div>
+            <h3>لا توجد تقارير متصلة</h3>
+            <p>عند جاهزية المحرك والـAPI، ستُعرض فترة التقرير ومصدر كل قيمة وطريقة حسابها.</p>
+          </div>
+        </section>
+
+        <section class="page-section" data-page="settings" aria-labelledby="settings-title" hidden>
+          <div class="section-intro">
+            <span class="eyebrow">الحساب والخصوصية</span>
+            <h2 id="settings-title">الإعدادات</h2>
+            <p>إعدادات الحساب والموافقات لن تُفعّل قبل اتصال خدمة المصادقة وتطبيق سياسات الخصوصية.</p>
+          </div>
+          <div class="settings-list">
+            <article class="setting-row">
+              <span class="setting-icon" aria-hidden="true">◎</span>
+              <div>
+                <h3>تسجيل الدخول</h3>
+                <p>البريد وكلمة المرور هما التدفق المعتمد، لكن نموذج المصادقة غير متصل بالخادم.</p>
+              </div>
+              <span class="status-chip status-muted">غير موصل</span>
+            </article>
+            <article class="setting-row">
+              <span class="setting-icon" aria-hidden="true">⌖</span>
+              <div>
+                <h3>موافقة الموقع الجغرافي</h3>
+                <p>GPS لا يعمل في هذه النسخة، ولم يُطلب إذن موقع من المتصفح.</p>
+              </div>
+              <span class="status-chip status-muted">متوقف</span>
+            </article>
+            <article class="setting-row">
+              <span class="setting-icon" aria-hidden="true">▣</span>
+              <div>
+                <h3>البيانات والاحتفاظ</h3>
+                <p>مدة الاحتفاظ بالموقع وفترة العينات والحذف عند سحب الموافقة ما زالت تحتاج قرارًا.</p>
+              </div>
+              <span class="status-chip status-warning">قرار مطلوب</span>
+            </article>
+          </div>
+        </section>
+      </main>
+
+      <footer class="app-footer">
+        <span>Fleet Commander</span>
+        <span>واجهة تطويرية — لا تحفظ أو ترسل بيانات تشغيلية</span>
+      </footer>
+    </div>
+  </div>
+</body>
+</html>
