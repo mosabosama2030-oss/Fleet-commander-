@@ -9,7 +9,7 @@ MANIFEST_PATH = ROOT / "manifest.webmanifest"
 
 def png_dimensions(path: Path) -> tuple[int, int]:
     data = path.read_bytes()
-    if data[:8] != b"\\x89PNG\\r\\n\\x1a\\n":
+    if data[:8] != bytes.fromhex("89504e470d0a1a0a"):
         raise AssertionError(f"{path.name} is not a PNG file")
     return struct.unpack(">II", data[16:24])
 
