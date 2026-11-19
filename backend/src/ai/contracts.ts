@@ -150,6 +150,29 @@ export interface AuditSink {
   record(event: AuditEvent): void;
 }
 
+/** حالة الميزانية اليومية. تُحفظ لتصمد أمام إعادة تشغيل الخادم (فجوة 1 في وثيقة التصميم). */
+export interface BudgetState {
+  readonly day: string;
+  readonly requests: number;
+  readonly tokens: number;
+}
+
+/** تخزين متزامن عن قصد (نواة نقية). محوّل قاعدة البيانات يأتي مع DEC-08. */
+export interface BudgetStore {
+  load(): BudgetState | null;
+  save(state: BudgetState): void;
+}
+
+export class MemoryBudgetStore implements BudgetStore {
+  #state: BudgetState | null = null;
+  load(): BudgetState | null {
+    return this.#state;
+  }
+  save(state: BudgetState): void {
+    this.#state = state;
+  }
+}
+
 /** الإعداد الآمن الافتراضي: كل شيء مغلق وميزانية صفر. */
 export const SAFE_DEFAULT_CONFIG: GatewayConfig = {
   enabled: false,

@@ -5,6 +5,7 @@ import { FALLBACK_CODES, LlmError } from './contracts.ts';
 import type {
   AttemptRecord,
   AuditSink,
+  BudgetStore,
   ChatMessage,
   GatewayConfig,
   LlmErrorCode,
@@ -19,6 +20,8 @@ export interface GatewayDeps {
   readonly providers: Readonly<Record<string, LlmProvider>>;
   readonly clock: Clock;
   readonly audit?: AuditSink;
+  /** اختياري؛ بدونه تُصفَّر الميزانية عند إعادة التشغيل (غير مقبول قبل أي تفعيل حقيقي). */
+  readonly budgetStore?: BudgetStore;
 }
 
 const MAX_TIMEOUT_MS = 60_000;
@@ -42,6 +45,12 @@ export class LlmGateway {
 
   constructor(deps: GatewayDeps) {
     this.#d = deps;
+    const saved = deps.budgetStore?.load();
+    if (saved) {
+      this.#day = saved.day;
+      this.#requests = saved.requests;
+      this.#tokens = saved.tokens;
+    }
   }
 
   async complete(req: LlmRequest): Promise<LlmResponse> {
@@ -188,11 +197,17 @@ export class LlmGateway {
     }
     this.#requests += 1;
     this.#tokens += estimate;
+    this.#persist();
   }
 
   /** يستبدل التقدير بالفعلي؛ الطلب يبقى محسوبًا حتى لو فشل (قد يكون المزود حاسبه). */
   #reconcile(estimate: number, actual: number): void {
     this.#tokens = Math.max(0, this.#tokens - estimate + actual);
+    this.#persist();
+  }
+
+  #persist(): void {
+    this.#d.budgetStore?.save({ day: this.#day, requests: this.#requests, tokens: this.#tokens });
   }
 
   #isOpen(id: string): boolean {
