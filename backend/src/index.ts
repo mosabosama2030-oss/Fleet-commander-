@@ -8,3 +8,27 @@ export { operatingDate, systemClock } from './domain/time.ts';
 export type { Clock, IdGenerator } from './domain/time.ts';
 export * from './domain/types.ts'; // يشمل Page وListOptions
 export * from './http/wire.ts';
+export { VoiceSession, resultReply, formatPounds } from './voice/session.ts';
+export type { VoiceAction, VoiceContext, Reply, TurnResult } from './voice/session.ts';
+export { parseUtterance } from './voice/intents.ts';
+export type { Intent, Parsed, ReplyLocale, VoicePlatform } from './voice/intents.ts';
+export { normalize, tokens, extractNumbers } from './voice/numbers.ts';
+export { LlmGateway } from './ai/gateway.ts';
+export type { GatewayDeps } from './ai/gateway.ts';
+export { redact } from './ai/redact.ts';
+export { LlmError, MemoryBudgetStore, PURPOSES, SAFE_DEFAULT_CONFIG, FALLBACK_CODES, LLM_ERROR_CODES } from './ai/contracts.ts';
+export type {
+  LlmProvider,
+  LlmRequest,
+  LlmResponse,
+  ProviderResult,
+  GatewayConfig,
+  Purpose,
+  LlmErrorCode,
+  AuditSink,
+  BudgetStore,
+  BudgetState,
+} from './ai/contracts.ts';
+export { llmIntent, validateLlmIntent, LLM_INTENT_KINDS } from './voice/llm-intent.ts';
+export { handleAssisted } from './voice/assisted.ts';
+export { FileBudgetStore } from './ai/file-budget-store.ts';
