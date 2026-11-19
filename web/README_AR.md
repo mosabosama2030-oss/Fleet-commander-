@@ -34,3 +34,18 @@
 
 ## التحقق
 لا يدّعي هذا التسليم اختبار متصفح آليًا أو اختبارًا على جهاز فعلي. يلزم التحقق البصري والوصولي على الهاتف وسطح المكتب قبل اعتماد الواجهة.
+
+
+## تجهيز PWA — بلا تكلفة وبلا Offline
+
+**PROPOSED / تجهيز محلي فقط:** أضيف Manifest وأيقونات محلية بمقاسات 192×192 و512×512، مع أيقونة maskable، لتجهيز الواجهة كمرشح للتثبيت من المتصفح على Android بعد استضافتها عبر HTTPS.
+
+- لا توجد استضافة أو عملية نشر ضمن هذا التغيير.
+- لا يوجد Service Worker أو Offline cache؛ المنتج يظل Online-only.
+- لا يوجد APK أو Android signing أو Play Store package.
+- لا توجد مصادقة أو API أو قاعدة بيانات متصلة بهذه الواجهة.
+- لا يمكن إعلان أن التثبيت يعمل فعليًا قبل استضافة HTTPS وفحص خيار التثبيت وتجربة التشغيل على جهاز Android حقيقي.
+
+مراجع متطلبات التثبيت:
+- https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Making_PWAs_installable
+- https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/What_is_a_progressive_web_app
