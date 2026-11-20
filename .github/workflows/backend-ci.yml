@@ -46,7 +46,7 @@ jobs:
       - name: Install temporary type-check tools
         env:
           NODE_TYPES: ${{ matrix.node-types }}
-        run: npm install --no-save --package-lock=false typescript@5.9.3 "@types/node@${NODE_TYPES}"
+        run: npm install --no-save --package-lock=false typescript@5.9.3 "@types/node@${NODE_TYPES}" fastify@5.12.7
 
       - name: Run backend tests
         run: npm test

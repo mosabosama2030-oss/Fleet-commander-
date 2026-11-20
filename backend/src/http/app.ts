@@ -1,6 +1,7 @@
 import Fastify, { type FastifyInstance } from 'fastify';
 import { randomUUID, timingSafeEqual } from 'node:crypto';
 import { FleetService } from '../domain/fleet-service.ts';
+import { validation } from '../domain/errors.ts';
 import { systemClock } from '../domain/time.ts';
 import { errorResponse, idempotencyKeyFrom, listOptionsFrom, toWirePage, wireErrorResponse } from './wire.ts';
 
@@ -17,17 +18,17 @@ function safeTokenEqual(expected: string, actual: string): boolean {
 }
 
 function objectBody(value: unknown): Record<string, unknown> {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('body must be an object');
+  if (!value || typeof value !== 'object' || Array.isArray(value)) throw validation('body must be an object');
   return value as Record<string, unknown>;
 }
 
 function requiredString(value: unknown, field: string): string {
-  if (typeof value !== 'string' || !value.trim()) throw new Error(field + ' is required');
+  if (typeof value !== 'string' || !value.trim()) throw validation(field + ' is required');
   return value.trim();
 }
 
 function requiredNumber(value: unknown, field: string): number {
-  if (typeof value !== 'number' || !Number.isSafeInteger(value) || value < 0) throw new Error(field + ' must be a non-negative integer');
+  if (typeof value !== 'number' || !Number.isSafeInteger(value) || value < 0) throw validation(field + ' must be a non-negative integer');
   return value;
 }
 
@@ -127,7 +128,7 @@ export function buildApi(options: ApiOptions): FastifyInstance {
     const body=objectBody(request.body);
     const field=requiredString(body.field,'field');
     const accepted=['trip.fare_minor','trip.status','shift.start_odometer_km','shift.end_odometer_km'];
-    if(!accepted.includes(field)) throw new Error('unsupported correction field');
+    if(!accepted.includes(field)) throw validation('unsupported correction field');
     const newValue=typeof body.newValue==='string' ? body.newValue : requiredNumber(body.newValue,'newValue');
     return reply.code(201).send(service.correct({
       ownerUserId:owner, shiftId:requiredString((request.params as {id:string}).id,'shiftId'),

@@ -65,7 +65,7 @@ describe('Fastify API — development single-captain boundary',()=>{
  it('sets request id and safely returns invalid body errors',async()=>{
   const {app}=make();
   const res=await app.inject({method:'POST',url:'/api/vehicles',headers:{...auth,'idempotency-key':key},payload:{label:''}});
-  assert.equal(res.statusCode,500); // validation currently surfaced as unknown — regression marker to fix before acceptance
+  assert.equal(res.statusCode,422);
   assert.ok(res.headers['x-request-id']);
   await app.close();
  });
