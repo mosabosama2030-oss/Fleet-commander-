@@ -59,7 +59,7 @@ describe('Fastify API — development single-captain boundary',()=>{
    payload:{endOdometerKm:60}
   });
   assert.equal(foreignMutation.statusCode,404);
-  assert.equal(service.listShifts('other-captain').items[0].status,'OPEN');
+  assert.equal(service.listShifts('other-captain').items[0]?.status,'OPEN');
   await app.close();
  });
  it('records a trip and replays idempotently',async()=>{
