@@ -3,10 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Fleet Commander backend — domain core (slice 1, no HTTP, no DB)",
-  "engines": {
-    "node": ">=22.18"
-  },
+  "description": "Fleet Commander backend — domain core and development HTTP API",
+  "engines": { "node": ">=22.18" },
   "scripts": {
     "test": "node --test \"test/**/*.test.ts\"",
     "typecheck": "tsc --noEmit -p ."
