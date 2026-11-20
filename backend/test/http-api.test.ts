@@ -41,14 +41,25 @@ describe('Fastify API — development single-captain boundary',()=>{
   assert.equal(end.json().status,'CLOSED');
   await app.close();
  });
- it('requires Idempotency-Key and rejects foreign-owned resources (hidden 404)',async()=>{
+ it('requires Idempotency-Key and rejects real foreign-owned resources (hidden 404)',async()=>{
   const {app,service}=make();
   const v=service.registerVehicle(OWNER,'Car');
   const shift=service.startShift({ownerUserId:OWNER,vehicleId:v.id,startOdometerKm:0});
   const missing=await app.inject({method:'POST',url:'/api/shifts/'+shift.id+'/end',headers:auth,payload:{endOdometerKm:10}});
   assert.equal(missing.statusCode,422);
-  const foreign=await app.inject({method:'GET',url:'/api/shifts/foreign-id/trips',headers:auth});
-  assert.equal(foreign.statusCode,404);
+
+  const foreignVehicle=service.registerVehicle('other-captain','Foreign car');
+  const foreignShift=service.startShift({ownerUserId:'other-captain',vehicleId:foreignVehicle.id,startOdometerKm:50});
+  const foreignRead=await app.inject({method:'GET',url:'/api/shifts/'+foreignShift.id+'/trips',headers:auth});
+  assert.equal(foreignRead.statusCode,404);
+  const foreignMutation=await app.inject({
+   method:'POST',
+   url:'/api/shifts/'+foreignShift.id+'/end',
+   headers:{...auth,'idempotency-key':'foreign-shift-end-0001'},
+   payload:{endOdometerKm:60}
+  });
+  assert.equal(foreignMutation.statusCode,404);
+  assert.equal(service.listShifts('other-captain').items[0].status,'OPEN');
   await app.close();
  });
  it('records a trip and replays idempotently',async()=>{
