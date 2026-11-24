@@ -32,3 +32,8 @@ export type {
 export { llmIntent, validateLlmIntent, LLM_INTENT_KINDS } from './voice/llm-intent.ts';
 export { handleAssisted } from './voice/assisted.ts';
 export { FileBudgetStore } from './ai/file-budget-store.ts';
+
+export { createOpenAICompatibleProvider } from './ai/providers/openai-compatible.ts';
+export type { OpenAICompatibleProviderOptions, ProviderFetch } from './ai/providers/openai-compatible.ts';
+export { createConfiguredLlmProviders, PROVIDER_CATALOG } from './ai/providers/registry.ts';
+export type { ProviderEnvironment } from './ai/providers/registry.ts';
