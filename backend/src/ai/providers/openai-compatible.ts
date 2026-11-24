@@ -26,6 +26,63 @@ const ALLOWED_BASE_URLS = new Set([
   'https://integrate.api.nvidia.com/v1',
 ]);
 
+const MAX_PROVIDER_RESPONSE_BYTES = 1_000_000;
+
+async function readBoundedJson(response: Response, signal: AbortSignal): Promise<unknown> {
+  const reader = response.body?.getReader();
+  if (!reader) throw new LlmError('INVALID_OUTPUT', 'Provider response body is empty');
+
+  const chunks: Uint8Array[] = [];
+  let totalBytes = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      totalBytes += value.byteLength;
+      if (totalBytes > MAX_PROVIDER_RESPONSE_BYTES) {
+        try {
+          await reader.cancel();
+        } catch {
+          // The size limit remains authoritative even if cancellation fails.
+        }
+        throw new LlmError('INVALID_OUTPUT', 'Provider response exceeds the size limit');
+      }
+      chunks.push(value);
+    }
+  } catch (error) {
+    if (error instanceof LlmError) throw error;
+    if (signal.aborted || isAbortError(error)) {
+      throw new LlmError('TIMEOUT', 'Provider response read timed out');
+    }
+    throw new LlmError('PROVIDER_UNAVAILABLE', 'Provider response could not be read');
+  } finally {
+    try {
+      reader.releaseLock();
+    } catch {
+      // Releasing a completed reader is best-effort.
+    }
+  }
+
+  const bytes = new Uint8Array(totalBytes);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+
+  let source: string;
+  try {
+    source = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+  } catch {
+    throw new LlmError('INVALID_OUTPUT', 'Provider response is not valid UTF-8');
+  }
+  try {
+    return JSON.parse(source) as unknown;
+  } catch {
+    throw new LlmError('INVALID_OUTPUT', 'Provider returned invalid JSON');
+  }
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
@@ -143,6 +200,7 @@ export function createOpenAICompatibleProvider(
           },
           body: JSON.stringify(requestBody),
           signal,
+          redirect: 'error',
         });
       } catch (error) {
         if (signal.aborted || isAbortError(error)) {
@@ -156,12 +214,7 @@ export function createOpenAICompatibleProvider(
         throw new LlmError(code, 'Provider returned an HTTP error');
       }
 
-      let payload: unknown;
-      try {
-        payload = await response.json() as unknown;
-      } catch {
-        throw new LlmError('INVALID_OUTPUT', 'Provider returned invalid JSON');
-      }
+      const payload = await readBoundedJson(response, signal);
       if (!isRecord(payload) || !Array.isArray(payload.choices)) {
         throw new LlmError('INVALID_OUTPUT', 'Provider response shape is invalid');
       }
