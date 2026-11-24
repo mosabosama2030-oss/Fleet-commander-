@@ -85,6 +85,7 @@ describe('OpenAI-compatible LlmProvider adapter', () => {
     assert.equal(result.model, 'mock-model');
     assert.equal(calls.length, 1);
     assert.equal(calls[0]?.url, 'https://api.mistral.ai/v1/chat/completions');
+    assert.equal(calls[0]?.init.redirect, 'error');
 
     const headers = new Headers(calls[0]?.init.headers);
     assert.equal(headers.get('authorization'), 'Bearer synthetic-test-key');
@@ -206,6 +207,15 @@ describe('OpenAI-compatible LlmProvider adapter', () => {
     ((unknownFinish as { choices: Record<string, unknown>[] }).choices[0]!).finish_reason = 'mystery';
     assert.equal(
       await thrownCode(() => provider(mockFetch(() => response(unknownFinish))).complete(REQUEST, new AbortController().signal)),
+      'INVALID_OUTPUT',
+    );
+  });
+
+  it('rejects provider responses larger than one megabyte', async () => {
+    const largeBody = ' '.repeat(1_000_001);
+    const p = provider(mockFetch(() => new Response(largeBody, { status: 200 })));
+    assert.equal(
+      await thrownCode(() => p.complete(REQUEST, new AbortController().signal)),
       'INVALID_OUTPUT',
     );
   });
