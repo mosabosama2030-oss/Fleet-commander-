@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { LlmError, LlmGateway, SAFE_DEFAULT_CONFIG } from '../src/ai/contracts.ts';
+import { LlmError, SAFE_DEFAULT_CONFIG } from '../src/ai/contracts.ts';
+import { LlmGateway } from '../src/ai/gateway.ts';
 import { createConfiguredLlmProviders, PROVIDER_CATALOG } from '../src/ai/providers/registry.ts';
 import { createOpenAICompatibleProvider } from '../src/ai/providers/openai-compatible.ts';
-import type { LlmRequest, ProviderResult } from '../src/ai/contracts.ts';
+import type { LlmRequest } from '../src/ai/contracts.ts';
 
 const REQUEST: LlmRequest = {
   requestId: 'synthetic-provider-test',
