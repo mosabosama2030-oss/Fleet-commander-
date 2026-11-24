@@ -3,6 +3,7 @@ import type {
   FinishReason,
   LlmProvider,
   LlmErrorCode,
+  LlmRequest,
   ProviderResult,
 } from '../contracts.ts';
 
@@ -171,7 +172,10 @@ export function createOpenAICompatibleProvider(
     id: options.id,
     capabilities,
 
-    async complete(req, signal): Promise<ProviderResult> {
+    async complete(
+      req: Pick<LlmRequest, 'messages' | 'maxOutputTokens' | 'responseFormat'>,
+      signal: AbortSignal,
+    ): Promise<ProviderResult> {
       if (signal.aborted) {
         throw new LlmError('TIMEOUT', 'Provider request was cancelled');
       }
@@ -210,6 +214,11 @@ export function createOpenAICompatibleProvider(
       }
 
       if (!response.ok) {
+        try {
+          await response.body?.cancel();
+        } catch {
+          // Do not include an untrusted provider error body in diagnostics.
+        }
         const code = errorCodeForStatus(response.status);
         throw new LlmError(code, 'Provider returned an HTTP error');
       }
@@ -227,6 +236,9 @@ export function createOpenAICompatibleProvider(
       const normalizedFinishReason = finishReason(firstChoice.finish_reason);
       if (text === null || text.trim() === '' || normalizedFinishReason === null) {
         throw new LlmError('INVALID_OUTPUT', 'Provider response content is invalid');
+      }
+      if (normalizedFinishReason === 'length') {
+        throw new LlmError('INVALID_OUTPUT', 'Provider output was truncated');
       }
 
       const usage = isRecord(payload.usage) ? payload.usage : {};
