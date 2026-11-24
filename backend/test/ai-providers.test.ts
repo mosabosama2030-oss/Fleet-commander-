@@ -204,6 +204,13 @@ describe('OpenAI-compatible LlmProvider adapter', () => {
       'INVALID_OUTPUT',
     );
 
+    const truncated = completion();
+    ((truncated as { choices: Record<string, unknown>[] }).choices[0]!).finish_reason = 'length';
+    assert.equal(
+      await thrownCode(() => provider(mockFetch(() => response(truncated))).complete(REQUEST, new AbortController().signal)),
+      'INVALID_OUTPUT',
+    );
+
     const unknownFinish = completion();
     ((unknownFinish as { choices: Record<string, unknown>[] }).choices[0]!).finish_reason = 'mystery';
     assert.equal(
