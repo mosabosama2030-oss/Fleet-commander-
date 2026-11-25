@@ -11,7 +11,7 @@
 - GitHub branch metadata يعيد `main.protected=true`.
 - Repository Rulesets endpoint يعيد قائمة فارغة `[]`. هذا لا ينفي وجود Classic Branch Protection.
 - لم يمكن قراءة تفاصيل إعدادات الحماية عبر موصل GitHub؛ لذلك لا ندّعي التحقق من كل شرط منفردًا.
-- PR #1 لا يزال OPEN/DRAFT وغير مدمج.
+- في لقطة 2026-11-14 فقط: كان PR #1 في حالة OPEN/DRAFT وغير مدمج؛ هذه الحالة التاريخية انتهت بدمجه في `main` بتاريخ 2026-11-19، كما يوضح تحديث التحقق الحي في القسم 6.
 - Issues #2–#10 مفتوحة. لا توجد GitHub assignees لهذه المهام؛ Role IDs ليست GitHub usernames.
 
 ## 2) VERIFIED — نشاط تنفيذي ظاهر
