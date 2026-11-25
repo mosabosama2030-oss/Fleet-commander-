@@ -1,42 +1,86 @@
-# حالة تجهيز GitHub والتشغيل الذاتي
+# حالة ربط الوكلاء والتشغيل الذاتي — Fleet Commander
 
-## VERIFIED — ما تم فحصه
-- المستودع: `mosabosama2030-oss/Fleet-commander-`.
-- الفرع الافتراضي: `main`.
-- SHA الحالي لـmain عند بدء التجهيز: `6cebb40136f11027ec7e5e3c50f62a813a03938f`.
-- الفروع التي ظهرت في الفحص كانت غير محمية؛ خاصية `protected=false` لفروع main والفروع المسجلة.
-- استعلام Repository Rulesets أعاد قائمة فارغة `[]`؛ لا توجد Rulesets على المستودع وقت الفحص.
-- PR #1 مفتوح وبحالة Draft، وليس مدمجًا.
-- `session/05-tech-auth-gps` كان 23 commit ahead و0 behind من main وقت الفحص.
-- Issues #2..#10 أنشئت كتكليفات أولية للأدوار التسعة.
-- أضيفت تعليمات الوكلاء وقوالب PR وIssue على فرع التجهيز، ولم تُدمج في main.
-- شجرة main وقت الفحص لم تعرض مجلد `.github/workflows/`؛ لم يثبت وجود GitHub Actions workflow في main.
-- GitHub integration المتاح هنا أنشأ فروعًا وملفات وIssues؛ لا يوفر في هذا المسار أداة كتابة Branch Protection/Rulesets أو إضافة GitHub App/provider credentials.
+آخر تحقق: 2026-11-14 (وقت القاهرة).
+المستودع: `mosabosama2030-oss/Fleet-commander-`.
+المصدر: GitHub repository/branch/PR/Issue/commit APIs؛ تُذكر إفادات Human Director منفصلة عن الدليل المستقل.
 
-## NOT CONFIGURED — ما لم يُفعّل بعد
-- لا يوجد ربط موثق لحسابات ChatGPT/Claude/Grok/Manus التسعة بهويات GitHub منفصلة أو صلاحيات مراجعة/كتابة متحققة.
-- Issues لا تحتوي assignees؛ أسماء الأدوار ليست GitHub usernames.
-- لم تُفعّل Branch Protection أو Rulesets أو required checks.
-- لم يُنشأ أو يُفعّل GitHub Project board.
-- لم تُنشأ GitHub Actions لتشغيل وكلاء LLM خارجيين.
-- لا توجد provider API keys أو webhook endpoints أو runner credentials موثقة.
-- لم يتم اختبار أي تشغيل تلقائي من حدث issue/PR إلى Claude/Grok/Manus/ChatGPT.
-- لا توجد آلية حقيقية لإيقاظ الوكيل التالي تلقائيًا بعد handoff.
+## 1) VERIFIED — حالة GitHub
+- PR #12 مدمج في `main` بتاريخ 2026-11-14 15:57:40 UTC.
+- Merge commit / main HEAD وقت التحقق: `ee2a019c1eb604933d984ff9aee03c4f898fbcd6`.
+- ملفات `AGENTS.md` و`CLAUDE.md` و`GROK.md` و`MANUS.md` و`docs/agents/*` موجودة في `main`.
+- GitHub branch metadata يعيد `main.protected=true`.
+- Repository Rulesets endpoint يعيد قائمة فارغة `[]`. هذا لا ينفي وجود Classic Branch Protection.
+- لم يمكن قراءة تفاصيل إعدادات الحماية عبر موصل GitHub؛ لذلك لا ندّعي التحقق من كل شرط منفردًا.
+- في لقطة 2026-11-14 فقط: كان PR #1 في حالة OPEN/DRAFT وغير مدمج؛ هذه الحالة التاريخية انتهت بدمجه في `main` بتاريخ 2026-11-19، كما يوضح تحديث التحقق الحي في القسم 6.
+- Issues #2–#10 مفتوحة. لا توجد GitHub assignees لهذه المهام؛ Role IDs ليست GitHub usernames.
 
-## القيد الحاسم
-GitHub Issues وملفات AGENTS/CLAUDE/GROK/MANUS تنظّم التكليف وتوفر سياقًا للوكيل عند فتحه؛ لكنها لا تشغّل نموذج AI بمجرد زيارة المستودع ولا ترسل جلسة من مزود إلى آخر. التشغيل المتواصل unattended يحتاج Agent Runtime لكل مزود أو مشغل مركزي يستدعي APIs المصرح بها، مع أسرار محفوظة في GitHub Secrets/Environment، وحدود ميزانية وتزامن، وتدقيق، ومفتاح إيقاف. لم يتم اختراع هذه الاتصالات أو تفعيل أسرارها.
+## 2) VERIFIED — نشاط تنفيذي ظاهر
+- **Claude 1 / FC-003:** PR #13 مفتوح إلى `main`، والفرع `agent/claude-1/FC-003` يحتوي ملفين توثيقيين لمقارنة Backend/DB/Hosting وADR مقترح. الاختبارات الوظيفية المصممة مذكورة NOT_RUN، ولا توجد مراجعات PR مسجلة وقت التحقق. PR ليس مدمجًا.
+  - PR: https://github.com/mosabosama2030-oss/Fleet-commander-/pull/13
+  - Issue: https://github.com/mosabosama2030-oss/Fleet-commander-/issues/4
+- **Grok 1 / FC-005:** الفرع `agent/GROK-1/FC-005` يحتوي `docs/architecture/ARCHITECTURE_CONSISTENCY_REVIEW_AR.md` (191 سطرًا)، وIssue #6 يحتوي CLAIM وتسليم READY_FOR_REVIEW. لا يوجد PR ظاهر لهذا الفرع وقت التحقق. بيانات GitHub تُظهر commit باسم مالك المستودع؛ لذلك لا تثبت وحدها هوية جلسة Grok المستقلة.
+  - Issue: https://github.com/mosabosama2030-oss/Fleet-commander-/issues/6
+- **ChatGPT/Codex:** PR #12 أنشأ طبقة تعليمات الفريق ثم دُمج بقرار MOSAAB. هذا يثبت استخدام تكامل ChatGPT Codex في تجهيز المستودع، لكنه لا يثبت اتصال حسابي ChatGPT مستقلين أو تشغيلهما كعاملين منفصلين.
+- **Manus وMeta وCLAUDE-2 وGROK-2 وCHATGPT-1/2:** لا توجد حتى هذا التحقق مطالبات وتسليمات منفصلة كافية في Issues لإثبات بدء عمل كل دور. قد تكون الاتصالات تمت في واجهات المزودين؛ لا يمكن استنتاجها من GitHub وحده.
 
-## ما يمكن فعله الآن
-عندما توجّه كل حساب إلى المستودع بالرسالة المحددة في ONE_TIME_AGENT_LAUNCH_MESSAGES_AR.md، يقرأ ملف التعليمات ويبدأ Issue الخاص به داخل جلسته، ثم يسلّم بالـPR والتعليق للوكيل التالي. هذا تشغيل ذاتي داخل الجلسة وليس تشغيلًا دائمًا في الخلفية.
+## 3) NOT CONFIGURED / NOT VERIFIED — التشغيل الآلي
+- شجرة `main` لا تحتوي حاليًا على `.github/workflows/*.yml` أو workflow لتشغيل وكلاء LLM.
+- فحص workflow runs وcombined statuses لثلاثة commits (main، PR #13، Grok-1 commit) أعاد قوائم فارغة.
+- لا يوجد دليل على Event Dispatcher يستقبل Issue/PR/HANDOFF events ويستدعي نماذج OpenAI/Anthropic/xAI/Manus.
+- لا يوجد دليل على اختبار end-to-end لإيقاظ الوكيل التالي بعد التسليم.
+- إعداد GitHub App أو نجاح OAuth يعني منح أداة وصولًا إلى المستودع؛ لا يعني تلقائيًا تشغيل جلسة نموذج أو منحها مهامًا مستمرة.
+- إفادة MOSAAB: أكمل ربط حسابي ChatGPT وGrok، وثبّت Claude GitHub App، وتحقق من Manus Developer API للحسابين، وجهّز Meta AI. هذه إفادة بشرية مسجلة؛ لم نتمكن من فحص صفحات إعدادات الحسابات الخارجية أو إثبات كل هوية وصلاحية من GitHub.
+- لا توجد نتائج CI على commits التي فُحصت؛ لا تُعامل مستندات الاختبار المصممة كاختبارات منفذة.
 
-## متطلبات المرحلة التالية للتشغيل الآلي الحقيقي
-1. ربط كل حساب/Agent Runtime بالمستودع بأقل صلاحيات ممكنة.
-2. تحديد هوية GitHub لكل حساب أو استخدام GitHub App مخصص مع صلاحيات Contents/Issues/PRs الضرورية فقط.
-3. اعتماد مشغل مركزي/Provider webhooks لتلقي Issue events وhandoff events.
-4. تخزين أسرار المزودين في GitHub Environments/Secrets بعد موافقة MOSAAB؛ لا تضعها في الملفات.
-5. إنشاء dispatcher يمنع مطالبة وكيلين بالمهمة نفسها باستخدام claim/lease وidempotency.
-6. تحديد limits للتكلفة والوقت وإعادة المحاولة والتزامن ومفتاح kill switch.
-7. إبقاء مراجعة البشر والدمج والنشر تحت سلطة MOSAAB.
+## 4) ما يلزم لإكمال التشغيل الذاتي
+1. تحديد مزود Agent Runtime واحد أو أكثر، وتوثيق وسيلة تشغيل كل دور: OpenAI/Codex، Claude Code/Anthropic، xAI، Manus. لا تفترض أن مفاتيح اشتراكات المحادثة تصلح كـAPI credentials.
+2. تثبيت GitHub App/هوية خدمة واحدة أو هويات محدودة الصلاحيات؛ لا تمنح الوكلاء Admin أو Merge.
+3. إنشاء Dispatcher يستقبل Issue opened/labeled/assigned وhandoff events.
+4. إنشاء سجل مهام مع claim/lease وidempotency لمنع تشغيل وكيلين للمهمة نفسها.
+5. توجيه كل Role ID إلى مزود/حساب/Runtime محدد، مع حدود متزامنة وتكلفة ووقت وإعادة محاولة.
+6. إضافة kill switch، سجلات تدقيق، redaction للأسرار، وعزل بيئة الاختبار عن الإنتاج.
+7. بناء GitHub Actions/worker بعد اعتماد تصميم التشغيل والأسرار والتكاليف.
+8. تنفيذ اختبار إثبات: Issue → dispatch → استجابة الوكيل → branch/PR → review/test → handoff → تشغيل الوكيل التالي. لا يوصف النظام بأنه autonomous قبل نجاح هذه السلسلة.
 
-## إجراء إداري مطلوب من Human Director
-فعّل من إعدادات GitHub حماية `main`: منع force push والحذف، طلب PR، وإلزام مراجعة بشرية مستقلة ونجاح CI بعد إضافة checks حقيقية. لا تضع Required Checks غير موجودة حتى لا تحجب الدمج. يجب التحقق من الحالة بعد التفعيل.
+## 5) حدود سلطة MOSAAB
+MOSAAB وحده يعتمد قرارات المنتج وانتقال البوابات ودمج PR والنشر وتغيير أسرار الإنتاج والتكاليف. لا تفعّل auto-merge أو نشر إنتاجي آلي.
+
+
+---
+
+## 6) تحديث تحقق حي — 2026-11-25 (وقت القاهرة)
+
+هذه اللقطة أحدث من القسم التاريخي أعلاه، وتصحح الحالات التي تغيرت بعد 2026-11-14. المصدر: GitHub REST repository, branch, pull request, and contents endpoints.
+
+### الحالة المؤكدة الآن
+- **VERIFIED:** `main` عند SHA `8ba4511629cb6f64e21ce9a7537c034cf77a9660`.
+- **VERIFIED:** PR #1 مدمج في `main` منذ 2026-11-19 21:36:35 UTC؛ لم يعد OPEN/DRAFT. Merge commit: `ef14275809b03eef0fe8911118ba279084e56ae7`.
+- **VERIFIED:** PR #12 مدمج منذ 2026-11-14 15:57:40 UTC، ولذلك تعليمات الفريق موجودة في `main`.
+- **VERIFIED:** PR #22 مدمج منذ 2026-11-19 21:36:44 UTC.
+- **VERIFIED:** GitHub branch metadata يعيد `main.protected=true` و`protection.enabled=true`. محاولة قراءة تفاصيل إعدادات الحماية أعادت HTTP 403 `Resource not accessible by integration`؛ تفاصيل الشروط المطلوبة تظل **UNKNOWN**.
+- **VERIFIED:** `.github/workflows/` في `main` يحتوي `backend-ci.yml` و`web-ci.yml`. هذا يثبت وجود CI للتطبيق، ولا يثبت تشغيل وكلاء متعددين تلقائيًا.
+- **VERIFIED:** PR #16 ما زال مفتوحًا وغير مدمج؛ إضافات GitHub Agentic Workflow الموجودة فيه ليست جزءًا من `main`.
+
+### PRs المفتوحة وقت التحقق
+| PR | الحالة | النطاق |
+|---:|---|---|
+| #14 | OPEN / NOT DRAFT | تحديث تعليمات التشغيل وحالة الربط — هذا PR |
+| #16 | OPEN / NOT DRAFT | GitHub Copilot task runner — غير مدمج |
+| #32 | OPEN / NOT DRAFT | تجهيز PWA shell |
+| #34 | OPEN / DRAFT | تسليم Termux |
+| #41 | OPEN / DRAFT | Fastify development routes |
+| #42 | OPEN / NOT DRAFT | سجل الحالة وخارطة الطريق |
+| #44 | OPEN / NOT DRAFT | Smoke tests وrunbooks |
+| #45 | OPEN / NOT DRAFT | حدود تأكيد أوامر الصوت |
+| #47 | OPEN / DRAFT | موائمات مزودي LLM معطّلة افتراضيًا |
+| #48 | OPEN / DRAFT | حزمة التصميم المرئي |
+| #49 | OPEN / DRAFT | مراجعة الأمن والخصوصية |
+| #50 | OPEN / NOT DRAFT | واجهة Captain preview |
+| #52 | OPEN / DRAFT | كتالوج الخوارزميات ومخطط تنفيذها |
+| #53 | OPEN / NOT DRAFT | خطة الاختبارات |
+
+### قيود القراءة والاستنتاج
+- حالات PR أعلاه هي لقطة وقت التحقق وليست ضمانًا أنها لم تتغير بعده؛ افحص GitHub مباشرة قبل أي قرار.
+- وجود PR بحالة NOT DRAFT لا يعني أنه اجتاز المراجعة أو الاختبارات أو أصبح معتمدًا.
+- لا يوجد دليل في هذه اللقطة على Dispatcher يشغّل Claude/Grok/Manus/ChatGPT تلقائيًا عند handoff. لا تخلط بين CI للتطبيق وبين Agent Runtime.
+- **لا دمج ولا نشر ولا تغيير أسرار**؛ MOSAAB وحده يملك هذه القرارات.
