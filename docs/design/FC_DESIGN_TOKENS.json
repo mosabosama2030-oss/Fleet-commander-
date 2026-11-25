@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "name": "Fleet Commander — Captain Intelligence Design System",
+  "version": "1.0.0",
+  "status": "PROPOSED",
+  "direction": "rtl",
+  "locale": "ar-EG",
+  "density": "comfortable",
+  "color": {
+    "canvas": "#F3F6F8",
+    "surface": "#FFFFFF",
+    "surfaceSubtle": "#F8FAFB",
+    "surfaceRaised": "#FFFFFF",
+    "ink": "#102A3A",
+    "inkSoft": "#405B6B",
+    "muted": "#6F8390",
+    "line": "#DFE7EA",
+    "lineStrong": "#C9D6DC",
+    "primary": "#087F7B",
+    "primaryHover": "#066B68",
+    "primaryPressed": "#055B59",
+    "primarySubtle": "#E6F4F2",
+    "navy": "#102A3A",
+    "navyDeep": "#0A1C29",
+    "ai": "#635BCA",
+    "aiSubtle": "#F0EEFC",
+    "success": "#187B58",
+    "successSubtle": "#E9F5EF",
+    "warning": "#A66B16",
+    "warningSubtle": "#FFF4E2",
+    "danger": "#B33E46",
+    "dangerSubtle": "#FBEDEF",
+    "info": "#2B6D9A",
+    "infoSubtle": "#EAF3F9",
+    "focus": "#2B78B8",
+    "overlay": "#0A1C29B8"
+  },
+  "typography": {
+    "fontFamilyArabic": "\"IBM Plex Sans Arabic\", \"Noto Sans Arabic\", Tahoma, Arial, sans-serif",
+    "fontFamilyLatin": "\"Inter\", \"Segoe UI\", Arial, sans-serif",
+    "fontStack": "\"IBM Plex Sans Arabic\", \"Noto Sans Arabic\", Tahoma, \"Segoe UI\", Arial, sans-serif",
+    "weights": { "regular": 400, "medium": 500, "semibold": 600, "bold": 700, "heavy": 800 },
+    "sizesPx": { "caption": 11, "small": 12, "body": 14, "bodyLarge": 16, "titleSmall": 18, "title": 24, "display": 32 },
+    "lineHeights": { "compact": 1.35, "body": 1.65, "reading": 1.85 }
+  },
+  "spacingPx": { "0": 0, "1": 4, "2": 8, "3": 12, "4": 16, "5": 20, "6": 24, "8": 32, "10": 40, "12": 48, "16": 64 },
+  "radiusPx": { "sm": 8, "md": 12, "lg": 16, "xl": 20, "2xl": 24, "pill": 999 },
+  "elevation": {
+    "card": "0 4px 18px rgba(16, 42, 58, 0.045)",
+    "raised": "0 12px 32px rgba(16, 42, 58, 0.09)",
+    "floating": "0 22px 54px rgba(16, 42, 58, 0.16)"
+  },
+  "layout": {
+    "sidebarDesktopPx": 272,
+    "topbarPx": 76,
+    "contentMaxWidthPx": 1240,
+    "pagePaddingDesktopPx": 32,
+    "pagePaddingMobilePx": 16,
+    "mobileBreakpointPx": 720,
+    "tabletBreakpointPx": 1024,
+    "minimumTouchTargetPx": 44
+  },
+  "component": {
+    "buttonHeightPx": 48,
+    "inputHeightPx": 52,
+    "navItemHeightPx": 48,
+    "cardPaddingPx": 20,
+    "fieldRadiusPx": 12,
+    "focusRing": "0 0 0 3px rgba(43, 120, 184, 0.24)"
+  },
+  "motion": {
+    "fastMs": 120,
+    "standardMs": 180,
+    "slowMs": 260,
+    "easing": "cubic-bezier(0.2, 0.7, 0.2, 1)",
+    "respectReducedMotion": true
+  },
+  "accessibility": {
+    "neverUseColorAloneForStatus": true,
+    "visibleKeyboardFocus": true,
+    "minimumTouchTargetPx": 44,
+    "supportZoom": true,
+    "logicalCssPropertiesForRtl": true,
+    "numbersAndIdentifiersMayUseLtrIsolates": true
+  }
+}
