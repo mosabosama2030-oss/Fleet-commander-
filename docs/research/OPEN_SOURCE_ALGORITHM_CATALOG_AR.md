@@ -304,3 +304,104 @@ CandidateAreaValue =
 - upstream builds/tests: NOT_RUN.
 - لم تتم إضافة dependencies أو نسخ كود أو تشغيل خدمات أو إجراء اتصال بمنصات النقل.
 - تم فتح PR #52 بحالة OPEN / DRAFT بعد اكتمال كتابة الوثيقة وفحص الملف المرفوع؛ المراجعة البشرية المستقلة والدمج ما زالا معلقين.
+
+
+## 3.1 طبقة الذكاء المتقدم — خوارزميات إضافية (ALG-18 إلى ALG-52)
+
+هذه الطبقة توسّع قدرات COMMANDER من تحليل العرض المفرد إلى فهم السياق، جودة الأدلة، المخاطر، وتوقيت القرار. **كل العناصر التالية PROPOSED وليست منفذة**. لا تعني كثرة الخوارزميات أن النظام أصبح أذكى تلقائياً؛ لا تُفعّل خوارزمية إلا إذا حسّنت نتيجة قابلة للقياس على بيانات مصرح بها، وتفوّقت على baseline، واجتازت اختبارات السلامة.
+
+### A. موثوقية الأحداث وفهم العروض
+
+| ID | الخوارزمية | الوظيفة | مخرج النظام | شرط التفعيل |
+|---|---|---|---|---|
+| ALG-18 | Event-time ordering + bounded lateness | ترتيب الأحداث بوقت الاستلام/المصدر مع تحمل محدود للتأخير | ترتيب قابل للتدقيق | لا نفترض ساعة منصة غير متاحة |
+| ALG-19 | Idempotency keys + replay protection | منع معالجة الحدث نفسه مرتين | نتيجة معالجة واحدة | مفتاح موثوق أو fingerprint موثق |
+| ALG-20 | Bayesian evidence update | تحديث قوة الدليل عند وصول حقول إضافية | evidence state مع prior معلن | لا يستخدم prior كحقيقة ولا يخفي UNKNOWN |
+| ALG-21 | Selective classification / abstention | الامتناع عن التصنيف عند ضعف الدليل | CLASSIFIED أو ABSTAINED | عتبة معايرة على fixtures ممثلة |
+| ALG-22 | Confidence calibration (isotonic / Platt) | معايرة درجات الثقة على نتائج موسومة | calibrated confidence | حجم بيانات كافٍ وفصل زمني |
+| ALG-23 | Parser ensemble disagreement | كشف اختلاف محللات القوالب/القواعد | NEEDS_REVIEW | لا تصويت أغلبي يحوّل الخطأ إلى حقيقة |
+| ALG-24 | Arabic normalization + locale-aware tokenization | تطبيع الأرقام والفواصل والمسافات وأشكال الحروف دون محو الأصل | normalized tokens + raw text reference | حفظ النص الخام محلياً بأقل مدة معتمدة |
+| ALG-25 | Template drift detection | كشف تغير شكل الإشعار أو صياغته | TEMPLATE_CHANGED | لا يجرب تخمين قالب جديد تلقائياً |
+| ALG-26 | Robust outlier detection (MAD / Hampel) | كشف قيم مسافة/زمن شاذة | OUTLIER_FLAG | لا يحذف القيمة الأصلية |
+| ALG-27 | Change-point detection (CUSUM) | اكتشاف تغير مفاجئ في جودة المصدر أو سلوك القياسات | CHANGE_ALERT | نافذة كافية ومعدل إنذارات مضبوط |
+
+### B. تقدير الوقت والرحلة والتكلفة التشغيلية
+
+| ID | الخوارزمية | الوظيفة | مخرج النظام | شرط التفعيل |
+|---|---|---|---|---|
+| ALG-28 | ETA baseline ensemble | مقارنة route ETA مع median تاريخي/زمن ساعة-أسبوع | ETA range + provider | لا ازدحام حي دون traffic feed |
+| ALG-29 | Quantile regression for ETA | تقدير P50/P80/P90 للوقت | نطاق وقت احتمالي | بيانات طريق محلية ومقاييس تغطية |
+| ALG-30 | Conformal prediction intervals | نطاقات تنبؤ ذات تغطية قابلة للقياس | interval + empirical coverage | معايرة منفصلة وعدم تسرب المستقبل |
+| ALG-31 | Deadhead/repositioning cost model | تقدير تكلفة الوصول للالتقاط/الانتقال | cost components | DEC-03/05/09 وأساس مسافة معتمد |
+| ALG-32 | Robust speed profile | كشف سرعة غير منطقية من عينات مصرح بها | quality flag | DEC-10؛ لا مراقبة GPS قبل الموافقة |
+| ALG-33 | Stop/idle segmentation (hysteresis) | فصل توقف/حركة لتلخيص الشيفت | segments | موافقة GPS وسياسة الاحتفاظ |
+| ALG-34 | Route detour ratio | مقارنة المسار الفعلي بالمسار المرجعي | detour indicator | GPS مصرح به ومسار مرجعي صالح |
+| ALG-35 | Multi-criteria route choice | موازنة الزمن/المسافة/الرسوم/عدم اليقين | ranked route alternatives | مزود موثوق وبيانات رسوم مثبتة |
+
+### C. الطلب المكاني والزماني والفرص
+
+| ID | الخوارزمية | الوظيفة | مخرج النظام | شرط التفعيل |
+|---|---|---|---|---|
+| ALG-36 | Spatio-temporal kernel smoothing | تنعيم إشارات المناطق المتجاورة زمنياً ومكانياً | smoothed proxy | لا يحول إشارات كابتن واحد إلى طلب سوق |
+| ALG-37 | Empirical Bayes shrinkage | تقليل تطرف تقديرات المناطق قليلة العينات | stabilized estimate | مجموعة مرجعية ممثلة ومعلنة |
+| ALG-38 | Hierarchical time-series forecasting | توقع هرمي: مدينة/منطقة/خلية | coherent forecasts | مصدر بيانات قانوني وتاريخ كافٍ |
+| ALG-39 | Intermittent-demand Croston variants | خط أساس لإشارات نادرة ومتقطعة | demand baseline | تعريف الحدث ومعدل الرصد معروفان |
+| ALG-40 | Negative-binomial regression | التعامل مع over-dispersion في العدّادات | count forecast | تشخيص التشتت يتفوق على Poisson |
+| ALG-41 | Zero-inflated / hurdle models | فصل غياب الإشارة عن عملية العدّ | two-part forecast | صفر حقيقي وليس فشل جمع البيانات |
+| ALG-42 | Spatial cross-validation | اختبار التعميم على مناطق لم تدخل التدريب | spatial holdout score | عدد مناطق كافٍ وتوزيع ممثل |
+| ALG-43 | Spatio-temporal leakage audit | منع تسرب أحداث قريبة/لاحقة بين التدريب والاختبار | leakage report | سجل observation/availability time |
+| ALG-44 | Opportunity-cost model | تقدير الفرص الضائعة عند الانتقال لمنطقة | opportunity penalty | outcomes موثوقة؛ لا أوزان تخمينية |
+| ALG-45 | Contextual bandit — offline evaluation only | تقييم سياسات التوصية تاريخياً دون تنفيذ تجارب حية | offline policy value + uncertainty | propensity/logging صالحان؛ ممنوع exploration حي الآن |
+
+### D. قرار COMMANDER، السلامة والتعلم
+
+| ID | الخوارزمية | الوظيفة | مخرج النظام | شرط التفعيل |
+|---|---|---|---|---|
+| ALG-46 | Constrained optimization | تعظيم قيمة القرار ضمن قيود الوقت/الوقود/النطاق | feasible candidate set | القيود معتمدة ومعلنة |
+| ALG-47 | Pareto frontier + dominance checks | عرض البدائل غير المهيمن عليها | Pareto alternatives | لا يختزل التفضيلات إلى وزن اعتباطي |
+| ALG-48 | Counterfactual replay | مقارنة التوصية بما حدث فعلياً وما كان متاحاً وقتها | replay report | لا يدّعي معرفة رحلة لم تُعرض |
+| ALG-49 | Doubly robust off-policy evaluation | تقييم سياسة ترتيب تاريخية مع تقليل انحياز الاختيار | policy estimate + CI | propensity scores وlogging صالحان |
+| ALG-50 | Drift decomposition (data/concept/prediction) | فصل تغير المصدر عن تغير العلاقة عن تغير التوقع | drift diagnosis | بيانات مراقبة كافية |
+| ALG-51 | Fault-tree + risk scoring | تحليل مسارات الفشل وتأثيرها على القرار | risk register | لا يستبدل مراجعة السلامة البشرية |
+| ALG-52 | Explanation stability / sensitivity analysis | اختبار ثبات ترتيب العروض عند تغير مدخل صغير أو UNKNOWN | explanation + sensitivity | كل تغيير يظل قابلاً للتفسير ولا يخفي الحقول الناقصة |
+
+### E. خوارزميات إضافية مؤجلة عمداً
+
+هذه ليست فجوة يجب ملؤها فوراً؛ بل تقنيات لا تستحق التعقيد قبل وجود بيانات واختبارات:
+
+- Graph neural networks للتنبؤ المكاني: مؤجلة حتى تثبت baselines البسيطة قصورها وتتوفر بيانات مكانية قانونية كثيفة.
+- Deep reinforcement learning: مرفوض في الإصدار الحالي؛ قد يدفع إلى تجارب تشغيلية غير آمنة، ولا توجد بيئة محاكاة موثوقة.
+- Real-time bidding / automated dispatch: خارج نطاق المنتج؛ لا Marketplace ولا قبول آلي.
+- LSTM/Transformer forecasting: مؤجل حتى يثبت تفوقه على baselines عبر rolling-origin وspatial holdouts مع تكلفة تشغيل مقبولة.
+- Federated learning: بحث مستقبلي فقط؛ لا توجد حالياً بنية موافقة/تجميع/تحديثات آمنة متعددة المستخدمين.
+- Causal uplift / treatment-effect models: مؤجل حتى تتوفر بيانات تدخلات ونتائج مع تعريف واضح للسببية؛ الارتباط لا يثبت أثر التوصية.
+
+### F. قواعد اختيار الخوارزمية — Intelligence Admission Gate
+
+لا تدخل أي خوارزمية إلى المنتج إلا بعد اجتياز جميع البنود:
+
+1. **Problem statement:** ما القرار الذي تحسنه؟ وما baseline الحالي؟
+2. **Data contract:** مصدر كل حقل، وقت رصده، حق الاستخدام، النقص، وحدود الاحتفاظ.
+3. **Deterministic fallback:** ماذا يعرض النظام إذا تعطل النموذج أو لم تتوفر البيانات؟
+4. **Abstention:** متى يقول النظام «لا أعرف» بدلاً من تخمين النتيجة؟
+5. **Evaluation:** holdout زمني/مكاني مناسب، ومقاييس مرتبطة بالقرار لا بالدقة العامة فقط.
+6. **Calibration:** قياس موثوقية الثقة وفترات التنبؤ، لا مجرد score داخلي.
+7. **Safety constraints:** لا قبول/رفض تلقائي، ولا تنفيذ أو تحكم خارجي.
+8. **Explainability:** عرض أهم المدخلات والحقول المجهولة ومصدر التوصية.
+9. **Resource budget:** زمن التنفيذ والذاكرة وحجم البيانات وحدود الشبكة والتكلفة.
+10. **Rollback:** مفتاح تعطيل وإمكانية الرجوع إلى baseline دون فقد السجل.
+11. **Privacy:** تقليل البيانات وعدم إرسال إشعارات أو مواقع دقيقة إلى مزود خارجي.
+12. **Human acceptance:** مراجعة مستقلة واعتماد MOSAAB قبل التفعيل.
+
+### G. ترتيب الذكاء المقترح حسب النضج
+
+| المرحلة | ما يتعلمه COMMANDER | التقنيات المسموحة مبدئياً | بوابة النجاح |
+|---|---|---|---|
+| Intelligence-0 | فهم الإشعار وجودة البيانات | قواعد حتمية، تطبيع عربي، schema validation، dedupe | fixtures واقعية منزوعة الهوية |
+| Intelligence-1 | فهم صلاحية العرض وسياقه | state machine، stale detection، selective abstention | لا عرض قديم على أنه حي |
+| Intelligence-2 | مقارنة الرحلات | حسابات حتمية بعد اعتماد المال، route matrix بعد اعتماد المزود | نتائج قابلة لإعادة الحساب |
+| Intelligence-3 | فهم المنطقة والوقت | H3، baselines، empirical Bayes، Poisson | مصدر بيانات وholdout محلي |
+| Intelligence-4 | توقع عدم اليقين | quantile/conformal، calibration، drift | تغطية وانحياز منشوران |
+| Intelligence-5 | تعلم جودة التوصية | replay، counterfactual، offline policy evaluation | نتائج متكررة على فترات ومناطق منفصلة |
+
+**قاعدة نهائية:** الذكاء غير العادي في Fleet Commander لا يعني أكبر عدد من النماذج؛ بل يعني قراراً أفضل، في الوقت المناسب، مع دليل واضح، وامتناع صريح عند نقص البيانات، وعدم تجاوز سلطة الكابتن.
