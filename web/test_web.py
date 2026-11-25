@@ -4,19 +4,17 @@ import re
 import unittest
 
 ROOT = Path(__file__).resolve().parent
+EXPECTED_PAGES = {"home", "shift", "trips", "expenses", "history", "reports", "assistant", "settings"}
 
 
 class PageInventory(HTMLParser):
     def __init__(self):
         super().__init__()
-        self.ids = []
-        self.pages = []
-        self.targets = []
-        self.stylesheets = []
-        self.scripts = []
-        self.forms = 0
-        self.password_inputs = 0
-        self.external_assets = []
+        self.ids, self.pages, self.targets = [], [], []
+        self.labels, self.stylesheets, self.scripts = [], [], []
+        self.external_assets, self.forms, self.password_inputs = [], 0, 0
+        self.mobile_nav = False
+        self.sections = []
 
     def handle_starttag(self, tag, attrs):
         values = dict(attrs)
@@ -24,8 +22,13 @@ class PageInventory(HTMLParser):
             self.ids.append(values["id"])
         if "data-page" in values:
             self.pages.append(values["data-page"])
+            self.sections.append((values["data-page"], values.get("aria-labelledby")))
         if "data-page-target" in values:
             self.targets.append(values["data-page-target"])
+        if "aria-label" in values:
+            self.labels.append(values["aria-label"])
+        if "mobile-nav" in values.get("class", "").split():
+            self.mobile_nav = True
         if tag == "form":
             self.forms += 1
         if tag == "input" and values.get("type", "").lower() == "password":
@@ -49,20 +52,24 @@ class WebPrototypeTests(unittest.TestCase):
         cls.inventory = PageInventory()
         cls.inventory.feed(cls.html)
 
-    def test_arabic_rtl_shell_has_six_sections(self):
+    def test_arabic_rtl_has_all_captain_sections(self):
         self.assertRegex(self.html, r'<html[^>]+lang="ar"[^>]+dir="rtl"')
-        self.assertEqual(
-            set(self.inventory.pages),
-            {"home", "shift", "trips", "expenses", "reports", "settings"},
-        )
+        self.assertEqual(set(self.inventory.pages), EXPECTED_PAGES)
 
     def test_every_navigation_target_exists(self):
-        page_ids = set(self.inventory.pages)
         self.assertTrue(self.inventory.targets)
-        self.assertTrue(set(self.inventory.targets).issubset(page_ids))
+        self.assertTrue(set(self.inventory.targets).issubset(EXPECTED_PAGES))
 
-    def test_dom_ids_are_unique(self):
+    def test_each_section_has_a_heading_reference(self):
+        ids = set(self.inventory.ids)
+        for page, heading_id in self.inventory.sections:
+            self.assertIsNotNone(heading_id, page)
+            self.assertIn(heading_id, ids, page)
+
+    def test_dom_ids_are_unique_and_mobile_navigation_exists(self):
         self.assertEqual(len(self.inventory.ids), len(set(self.inventory.ids)))
+        self.assertTrue(self.inventory.mobile_nav)
+        self.assertIn("إغلاق القائمة", self.inventory.labels)
 
     def test_only_local_assets_are_referenced(self):
         self.assertEqual(self.inventory.external_assets, [])
@@ -71,29 +78,31 @@ class WebPrototypeTests(unittest.TestCase):
         self.assertTrue((ROOT / "styles.css").is_file())
         self.assertTrue((ROOT / "app.js").is_file())
 
-    def test_prototype_does_not_collect_credentials_or_submit_forms(self):
+    def test_preview_does_not_collect_credentials_or_submit_forms(self):
         self.assertEqual(self.inventory.forms, 0)
         self.assertEqual(self.inventory.password_inputs, 0)
 
-    def test_no_storage_network_or_location_apis(self):
+    def test_no_storage_network_or_sensitive_browser_apis(self):
         forbidden = (
-            r"\blocalStorage\b",
-            r"\bsessionStorage\b",
-            r"\bindexedDB\b",
-            r"\bnavigator\.geolocation\b",
-            r"\bnavigator\.serviceWorker\b",
-            r"\bfetch\s*\(",
-            r"\bXMLHttpRequest\b",
-            r"\bWebSocket\b",
+            r"\blocalStorage\b", r"\bsessionStorage\b", r"\bindexedDB\b",
+            r"\bnavigator\.geolocation\b", r"\bnavigator\.serviceWorker\b",
+            r"\bfetch\s*\(", r"\bXMLHttpRequest\b", r"\bWebSocket\b",
         )
         for pattern in forbidden:
             self.assertIsNone(re.search(pattern, self.js), pattern)
         self.assertIn("navigator.onLine", self.js)
 
-    def test_responsive_and_reduced_motion_styles_exist(self):
-        self.assertIn("@media (max-width: 760px)", self.css)
-        self.assertIn("@media (max-width: 440px)", self.css)
-        self.assertIn("@media (prefers-reduced-motion: reduce)", self.css)
+    def test_reduced_motion_and_responsive_layout_exist(self):
+        self.assertIn("@media(max-width:760px)", self.css)
+        self.assertIn("@media(max-width:440px)", self.css)
+        self.assertIn("prefers-reduced-motion:reduce", self.css)
+        self.assertIn("--primary:#087F7B", self.css)
+        self.assertIn("--ai:#635BCA", self.css)
+
+    def test_ai_remains_disabled_and_financial_claims_are_absent(self):
+        self.assertIn("المساعد غير مفعّل", self.html)
+        self.assertIn("المحرك المالي غير متاح", self.html)
+        self.assertIn("لن يتم تأكيد أي إجراء قبل الربط الفعلي", self.html)
 
 
 if __name__ == "__main__":
