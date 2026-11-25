@@ -102,7 +102,7 @@ class WebPrototypeTests(unittest.TestCase):
     def test_ai_remains_disabled_and_financial_claims_are_absent(self):
         self.assertIn("المساعد غير مفعّل", self.html)
         self.assertIn("المحرك المالي غير متاح", self.html)
-        self.assertIn("لا يتم تأكيد أي إجراء قبل الربط الفعلي", self.html)
+        self.assertIn("لن يتم تأكيد أي إجراء قبل الربط الفعلي", self.html)
 
 
 if __name__ == "__main__":
