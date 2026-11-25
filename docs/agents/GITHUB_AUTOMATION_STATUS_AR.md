@@ -44,3 +44,43 @@
 
 ## 5) حدود سلطة MOSAAB
 MOSAAB وحده يعتمد قرارات المنتج وانتقال البوابات ودمج PR والنشر وتغيير أسرار الإنتاج والتكاليف. لا تفعّل auto-merge أو نشر إنتاجي آلي.
+
+
+---
+
+## 6) تحديث تحقق حي — 2026-11-25 (وقت القاهرة)
+
+هذه اللقطة أحدث من القسم التاريخي أعلاه، وتصحح الحالات التي تغيرت بعد 2026-11-14. المصدر: GitHub REST repository, branch, pull request, and contents endpoints.
+
+### الحالة المؤكدة الآن
+- **VERIFIED:** `main` عند SHA `8ba4511629cb6f64e21ce9a7537c034cf77a9660`.
+- **VERIFIED:** PR #1 مدمج في `main` منذ 2026-11-19 21:36:35 UTC؛ لم يعد OPEN/DRAFT. Merge commit: `ef14275809b03eef0fe8911118ba279084e56ae7`.
+- **VERIFIED:** PR #12 مدمج منذ 2026-11-14 15:57:40 UTC، ولذلك تعليمات الفريق موجودة في `main`.
+- **VERIFIED:** PR #22 مدمج منذ 2026-11-19 21:36:44 UTC.
+- **VERIFIED:** GitHub branch metadata يعيد `main.protected=true` و`protection.enabled=true`. محاولة قراءة تفاصيل إعدادات الحماية أعادت HTTP 403 `Resource not accessible by integration`؛ تفاصيل الشروط المطلوبة تظل **UNKNOWN**.
+- **VERIFIED:** `.github/workflows/` في `main` يحتوي `backend-ci.yml` و`web-ci.yml`. هذا يثبت وجود CI للتطبيق، ولا يثبت تشغيل وكلاء متعددين تلقائيًا.
+- **VERIFIED:** PR #16 ما زال مفتوحًا وغير مدمج؛ إضافات GitHub Agentic Workflow الموجودة فيه ليست جزءًا من `main`.
+
+### PRs المفتوحة وقت التحقق
+| PR | الحالة | النطاق |
+|---:|---|---|
+| #14 | OPEN / NOT DRAFT | تحديث تعليمات التشغيل وحالة الربط — هذا PR |
+| #16 | OPEN / NOT DRAFT | GitHub Copilot task runner — غير مدمج |
+| #32 | OPEN / NOT DRAFT | تجهيز PWA shell |
+| #34 | OPEN / DRAFT | تسليم Termux |
+| #41 | OPEN / DRAFT | Fastify development routes |
+| #42 | OPEN / NOT DRAFT | سجل الحالة وخارطة الطريق |
+| #44 | OPEN / NOT DRAFT | Smoke tests وrunbooks |
+| #45 | OPEN / NOT DRAFT | حدود تأكيد أوامر الصوت |
+| #47 | OPEN / DRAFT | موائمات مزودي LLM معطّلة افتراضيًا |
+| #48 | OPEN / DRAFT | حزمة التصميم المرئي |
+| #49 | OPEN / DRAFT | مراجعة الأمن والخصوصية |
+| #50 | OPEN / NOT DRAFT | واجهة Captain preview |
+| #52 | OPEN / DRAFT | كتالوج الخوارزميات ومخطط تنفيذها |
+| #53 | OPEN / NOT DRAFT | خطة الاختبارات |
+
+### قيود القراءة والاستنتاج
+- حالات PR أعلاه هي لقطة وقت التحقق وليست ضمانًا أنها لم تتغير بعده؛ افحص GitHub مباشرة قبل أي قرار.
+- وجود PR بحالة NOT DRAFT لا يعني أنه اجتاز المراجعة أو الاختبارات أو أصبح معتمدًا.
+- لا يوجد دليل في هذه اللقطة على Dispatcher يشغّل Claude/Grok/Manus/ChatGPT تلقائيًا عند handoff. لا تخلط بين CI للتطبيق وبين Agent Runtime.
+- **لا دمج ولا نشر ولا تغيير أسرار**؛ MOSAAB وحده يملك هذه القرارات.
